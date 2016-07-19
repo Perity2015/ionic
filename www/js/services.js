@@ -84,7 +84,7 @@ angular.module('starter.services', [])
         total = tempTotal;
       },
       canLoadMore: function () {
-        return total > chats.length;
+        return total >= chats.length;
       },
       length: function () {
         return chats.length / 10;

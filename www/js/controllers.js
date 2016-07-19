@@ -81,10 +81,47 @@ angular.module('starter.controllers', [])
     $scope.chat = Chats.get($stateParams.chatId);
     console.info($scope.chat);
     $scope.$on('$ionicView.afterEnter', function () {
-      var map = new AMap.Map('mapContainer', {
-        center: [121.498586, 31.239637]
-      });
+      var map = new BMap.Map("mapContainer");    // 创建Map实例
+      map.disableScrollWheelZoom();     //开启鼠标滚轮缩放
+      map.disableDoubleClickZoom();
+      map.disablePinchToZoom();
+      map.disableDragging();
+      if ($scope.chat.beginlat == null && $scope.chat.endlat == null) {
+        map.centerAndZoom(new BMap.Point(116.404, 39.915), 11);  // 初始化地图,设置中心点坐标和地图级别
+        map.setCurrentCity("北京");          // 设置地图显示的城市 此项是必须设置的
+        return;
+      }
+      var points = new Array();
+      if ($scope.chat.beginlat != null) {
+        var point = new BMap.Point($scope.chat.beginlng, $scope.chat.beginlat);
+        points.push(point);
+      }
+      if ($scope.chat.endlat != null) {
+        var point = new BMap.Point($scope.chat.endlng, $scope.chat.endlat);
+        points.push(point);
+      }
+
+      //坐标转换完之后的回调函数
+      translateCallback = function (data){
+        if(data.status === 0) {
+          var newPoints = data.points;
+          for (var i = 0;i<newPoints.length;i++){
+            var marker = new BMap.Marker(newPoints[i]);
+            map.addOverlay(marker);
+          }
+
+          var polyline = new BMap.Polyline(newPoints, {strokeColor:"blue", strokeWeight:2, strokeOpacity:0.5});
+          map.addOverlay(polyline);
+          map.setViewport(newPoints);
+        }
+      }
+      setTimeout(function(){
+        var convertor = new BMap.Convertor();
+        convertor.translate(points, 1, 5, translateCallback)
+      }, 1000);
+
     }, false);
+
 
   })
 
