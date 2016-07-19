@@ -1,1 +1,21 @@
 /* Empty. Add your own CSS if you like */
+
+.td_left {
+  width: 30%;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.td_right {
+  width: 70%;
+}
+
+#mapContainer {
+  position: relative;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+}
