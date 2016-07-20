@@ -96,13 +96,36 @@ angular.module('starter.services', [])
       ;
   })
 
-  .factory('Account', function () {
+  //本地存储数据===================================
+  .factory('locals', ['$window', function ($window) {
+    return {
+      //存储单个属性
+      set: function (key, value) {
+        $window.localStorage[key] = value;
+      },
+      //读取单个属性
+      get: function (key, defaultValue) {
+        return $window.localStorage[key] || defaultValue;
+      },
+      //存储对象，以JSON格式存储
+      setObject: function (key, value) {
+        $window.localStorage[key] = JSON.stringify(value);
+      },
+      //读取对象
+      getObject: function (key) {
+        return JSON.parse($window.localStorage[key] || null);
+      }
+
+    }
+  }])
+
+  .factory('Account', function (locals,$ionicHistory,$location) {
     var user = {
       username: 'yc',
       password: '0'
     };
 
-    var userInfo = {};
+    var userInfo ;
 
     return {
       instance: function () {
@@ -114,11 +137,23 @@ angular.module('starter.services', [])
       },
 
       instanceUserInfo: function () {
+        userInfo = locals.getObject("userInfo");
         return userInfo;
       },
 
       updateUserInfo: function (tempUserInfo) {
         userInfo = tempUserInfo;
+        locals.setObject("userInfo",userInfo);
+      },
+
+      clean:function () {
+        // $ionicHistory.clearCache();
+        var exp = new Date();
+        exp.setTime(exp.getTime() - 1);
+        console.info(document.cookie);
+          document.cookie= "sessionID=aaa;";
+        // $location.path("/account/login");
+        console.info(document.cookie);
       }
     };
   });

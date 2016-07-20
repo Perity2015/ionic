@@ -51,6 +51,27 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
         templateUrl: 'templates/tabs.html'
       })
 
+      .state('tab.login', {
+          url: '/login',
+          views: {
+            'tab-records': {
+              templateUrl: 'templates/tab-login.html',
+              controller: 'AccountCtrl'
+            }
+          }
+        }
+      )
+
+      .state('tab.loginAgain', {
+        url: '/loginAgain',
+        views: {
+          'tab-account': {
+            templateUrl: 'templates/tab-login.html',
+            controller: 'AccountCtrl'
+          }
+        }
+      })
+
       // Each tab has its own nav history stack:
 
       .state('tab.dash', {
@@ -72,6 +93,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
           }
         }
       })
+
       .state('tab.records-detail', {
         url: '/records/:chatId',
         views: {
@@ -92,17 +114,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
         }
       })
 
-      .state('tab.login',
-        {
-          url: '/login',
-          views: {
-            'tab-chats': {
-              templateUrl: 'templates/login.html',
-              controller: 'AccountCtrl'
-            }
-          }
-        }
-      )
+
     ;
 
     // if none of the above states are matched, use this as the fallback

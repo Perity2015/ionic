@@ -8,7 +8,7 @@
   <ion-content class="padding">
     <div>
       <table class="table table-bordered">
-        <tr>
+        <tr ng-show="chat.deskaddr">
           <th class="td_left">目的地址</th>
           <td class="td_right">{{chat.deskaddr}}</td>
         </tr>
@@ -16,7 +16,7 @@
           <th class="td_left">起始时间</th>
           <td class="td_right">{{chat.begintime}}</td>
         </tr>
-        <tr>
+        <tr ng-show="chat.beginaddr">
           <th class="td_left">起始地址</th>
           <td class="td_right">{{chat.beginaddr}}</td>
         </tr>
@@ -24,15 +24,15 @@
           <th class="td_left">起始人员</th>
           <td class="td_right">{{chat.beginusername}}</td>
         </tr>
-        <tr>
+        <tr ng-show="chat.endusername">
           <th class="td_left">结束时间</th>
           <td class="td_right">{{chat.endtime}}</td>
         </tr>
-        <tr>
+        <tr ng-show="chat.endusername">
           <th class="td_left">结束地址</th>
           <td class="td_right">{{chat.endaddr}}</td>
         </tr>
-        <tr>
+        <tr ng-show="chat.endusername">
           <th class="td_left">结束人员</th>
           <td class="td_right">{{chat.endusername}}</td>
         </tr>

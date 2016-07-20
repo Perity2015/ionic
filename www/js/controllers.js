@@ -136,6 +136,12 @@ angular.module('starter.controllers', [])
 
   .controller('AccountCtrl', function ($scope, $stateParams, $ionicModal, $ionicHistory, $ionicPopover, $timeout, $location, $ionicPopup, $http, Account) {
     $scope.user = Account.instance();
+    $scope.userInfo = Account.instanceUserInfo();
+
+    $scope.quitLogin = function () {
+      Account.clean();
+      $location.path("/tab/loginAgain");
+    };
 
     $scope.login = function (user) {
       if (undefined == user || user.username == '' || user.password == '') {

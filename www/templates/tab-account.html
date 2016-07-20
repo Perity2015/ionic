@@ -1,7 +1,12 @@
 <ion-view view-title="设置">
   <ion-content class="padding">
-    <div>
-      <a class="button button-full button-positive" href="#/tab/account/login">登录</a>
+    <div ng-show="userInfo" style="text-align: center;">
+      <img src="img/user.jpg" style="width: 64px;height: 64px;border-radius: 32px;">
+      <p>{{userInfo.company}}</p>
+      <p>{{userInfo.orgna_name}}</p>
+      <p>{{userInfo.powername}}</p>
+      <p>{{userInfo.realname}}</p>
+      <button class="button button-positive" ng-click="quitLogin()">切换用户</button>
     </div>
   </ion-content>
 </ion-view>
