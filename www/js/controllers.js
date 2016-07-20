@@ -138,6 +138,10 @@ angular.module('starter.controllers', [])
     $scope.user = Account.instance();
     $scope.userInfo = Account.instanceUserInfo();
 
+    $scope.$on('$stateChangeSuccess', function () {
+      $scope.userInfo = Account.instanceUserInfo();
+    });
+
     $scope.quitLogin = function () {
       Account.clean();
       $location.path("/tab/loginAgain");
