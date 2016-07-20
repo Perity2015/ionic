@@ -59,7 +59,9 @@ angular.module('starter.services', [])
         chats.splice(chats.indexOf(chat), 1);
       },
       update: function (items, $filter) {
-        for (var i = 0; i < items.length; i++) {
+        chats = new Array();
+        var i;
+        for (i in items) {
           items[i].begintime = $filter("jsonDate")(items[i].begintime, "yyyy-MM-dd HH:mm:ss");
           items[i].endtime = $filter("jsonDate")(items[i].endtime, "yyyy-MM-dd HH:mm:ss");
           chats.push(items[i]);
@@ -74,7 +76,8 @@ angular.module('starter.services', [])
         return null;
       },
       add: function (items, $filter) {
-        for (var i = 0; i < items.length; i++) {
+        var i;
+        for (i in items) {
           items[i].begintime = $filter("jsonDate")(items[i].begintime, "yyyy-MM-dd HH:mm:ss");
           items[i].endtime = $filter("jsonDate")(items[i].endtime, "yyyy-MM-dd HH:mm:ss");
           chats.push(items[i]);
@@ -84,7 +87,7 @@ angular.module('starter.services', [])
         total = tempTotal;
       },
       canLoadMore: function () {
-        return total >= chats.length;
+        return total > chats.length;
       },
       length: function () {
         return chats.length / 10;

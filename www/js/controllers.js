@@ -6,7 +6,7 @@ angular.module('starter.controllers', [])
   .controller('DashCtrl', function ($scope) {
   })
 
-  .controller('ChatsCtrl', function ($scope, $http, $location, $filter, Chats) {
+  .controller('ChatsCtrl', function ($scope, $http, $location, $filter, $ionicScrollDelegate, Chats) {
     // With the new view caching in Ionic, Controllers are only called
     // when they are recreated or on app start, instead of every page change.
     // To listen for when this page is active (for example, to refresh data),
@@ -15,6 +15,15 @@ angular.module('starter.controllers', [])
     //$scope.$on('$ionicView.enter', function(e) {
     //});
 
+    $scope.shouldShow = function () {
+      var top = $ionicScrollDelegate.getScrollPosition().top;
+      console.info(top);
+      return top > 800;
+    }
+
+    $scope.scrollTop = function () {
+      $ionicScrollDelegate.scrollTop(true);
+    };
 
     $scope.chats = Chats.all();
     $scope.remove = function (chat) {
@@ -80,7 +89,7 @@ angular.module('starter.controllers', [])
   .controller('ChatDetailCtrl', function ($scope, $stateParams, Chats) {
     $scope.chat = Chats.get($stateParams.chatId);
     console.info($scope.chat);
-    $scope.$on('$ionicView.afterEnter', function () {
+    $scope.$on('$ionicView.beforeEnter', function () {
       var map = new BMap.Map("mapContainer");    // 创建Map实例
       map.disableScrollWheelZoom();     //开启鼠标滚轮缩放
       map.disableDoubleClickZoom();
@@ -102,20 +111,20 @@ angular.module('starter.controllers', [])
       }
 
       //坐标转换完之后的回调函数
-      translateCallback = function (data){
-        if(data.status === 0) {
+      translateCallback = function (data) {
+        if (data.status === 0) {
           var newPoints = data.points;
-          for (var i = 0;i<newPoints.length;i++){
+          for (var i = 0; i < newPoints.length; i++) {
             var marker = new BMap.Marker(newPoints[i]);
             map.addOverlay(marker);
           }
 
-          var polyline = new BMap.Polyline(newPoints, {strokeColor:"blue", strokeWeight:2, strokeOpacity:0.5});
+          var polyline = new BMap.Polyline(newPoints, {strokeColor: "blue", strokeWeight: 2, strokeOpacity: 0.5});
           map.addOverlay(polyline);
           map.setViewport(newPoints);
         }
       }
-      setTimeout(function(){
+      setTimeout(function () {
         var convertor = new BMap.Convertor();
         convertor.translate(points, 1, 5, translateCallback)
       }, 1000);

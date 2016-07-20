@@ -7,40 +7,37 @@
 <ion-view view-title="{{chat.linkgoodname}}">
   <ion-content class="padding">
     <div>
-      <div>
-        <table class="table table-bordered">
-          <tr>
-            <th class="td_left">目的地址</th>
-            <td class="td_right">{{chat.deskaddr}}</td>
-          </tr>
-          <tr>
-            <th class="td_left">起始时间</th>
-            <td class="td_right">{{chat.begintime}}</td>
-          </tr>
-          <tr>
-            <th class="td_left">起始地址</th>
-            <td class="td_right">{{chat.beginaddr}}</td>
-          </tr>
-          <tr>
-            <th class="td_left">起始人员</th>
-            <td class="td_right">{{chat.beginusername}}</td>
-          </tr>
-          <tr>
-            <th class="td_left">结束时间</th>
-            <td class="td_right">{{chat.endtime}}</td>
-          </tr>
-          <tr>
-            <th class="td_left">结束地址</th>
-            <td class="td_right">{{chat.endaddr}}</td>
-          </tr>
-          <tr>
-            <th class="td_left">结束人员</th>
-            <td class="td_right">{{chat.endusername}}</td>
-          </tr>
-        </table>
-      </div>
-      <div id="mapContainer" style="width: 100%;height: 200px;overflow: hidden;margin: 0;"></div>
+      <table class="table table-bordered">
+        <tr>
+          <th class="td_left">目的地址</th>
+          <td class="td_right">{{chat.deskaddr}}</td>
+        </tr>
+        <tr>
+          <th class="td_left">起始时间</th>
+          <td class="td_right">{{chat.begintime}}</td>
+        </tr>
+        <tr>
+          <th class="td_left">起始地址</th>
+          <td class="td_right">{{chat.beginaddr}}</td>
+        </tr>
+        <tr>
+          <th class="td_left">起始人员</th>
+          <td class="td_right">{{chat.beginusername}}</td>
+        </tr>
+        <tr>
+          <th class="td_left">结束时间</th>
+          <td class="td_right">{{chat.endtime}}</td>
+        </tr>
+        <tr>
+          <th class="td_left">结束地址</th>
+          <td class="td_right">{{chat.endaddr}}</td>
+        </tr>
+        <tr>
+          <th class="td_left">结束人员</th>
+          <td class="td_right">{{chat.endusername}}</td>
+        </tr>
+      </table>
     </div>
-
+    <div id="mapContainer" style="width: 100%;height: 200px;overflow: hidden;margin: 0;"></div>
   </ion-content>
 </ion-view>

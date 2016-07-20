@@ -1,11 +1,11 @@
 <ion-view view-title="记录">
   <ion-content>
+    <ion-refresher pulling-text="下拉刷新……" pulling-icon="ion-load-a" refreshing-icon="ion-load-b"
+                   on-refresh="doRefresh()"></ion-refresher>
     <ion-list>
-      <ion-refresher pulling-text="下拉刷新……" pulling-icon="ion-load-a" refreshing-icon="ion-load-b"
-                     on-refresh="doRefresh()"></ion-refresher>
       <ion-item class="item-remove-animate item-avatar item-icon-right" ng-repeat="chat in chats" type="item-text-wrap"
                 href="#/tab/chats/{{chat.id}}">
-        <img src='../www/img/car.jpg'>
+        <img src='img/record_item_logo.jpg'>
         <h2>{{chat.linkgoodname}}</h2>
         <p>{{chat.begintime}}</p>
         <i class="icon ion-chevron-right icon-accessory"></i>
@@ -14,4 +14,8 @@
     <ion-infinite-scroll distance="1%" on-infinite="LoadMore()" icon="ion-load-c"
                          ng-if="canLoadMore()"></ion-infinite-scroll>
   </ion-content>
+  <div id="scroll" ng-click="scrollTop()"
+       style="position: fixed;bottom:100px;right:12px;z-index: 500;overflow: hidden;text-align: center;vertical-align: middle;padding: 5px">
+    <img src="img/ic_record_top.png" style="width: 36px;height: 36px">
+  </div>
 </ion-view>
