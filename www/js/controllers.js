@@ -3,6 +3,8 @@ angular.module('starter.controllers', [])
 
   })
 
+
+
   .controller('DashCtrl', function ($scope) {
   })
 
@@ -77,9 +79,9 @@ angular.module('starter.controllers', [])
       })
     };
 
-    $scope.$on('$ionicView.afterEnter', function () {
-      $scope.doRefresh();
-    });
+    // $scope.$on('$ionicView.afterEnter', function () {
+    //   $scope.doRefresh();
+    // });
 
     $scope.$on('stateChangeSuccess', function () {
       $scope.doRefresh();
