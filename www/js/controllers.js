@@ -39,7 +39,7 @@ angular.module('starter.controllers', [])
       promise.then(function (resp) {
         console.info(resp.data.rows);
         if (resp.headers("sessionStatus")) {
-          $location.path('/tab/account');
+          $location.path('/tab/login');
           return;
         }
         Chats.updateTotal(resp.data.total);
@@ -64,7 +64,7 @@ angular.module('starter.controllers', [])
       promise.then(function (resp) {
         // console.info(resp.data.rows);
         if (resp.headers("sessionStatus")) {
-          $location.path('/tab/account');
+          $location.path('/tab/login');
           return;
         }
         Chats.updateTotal(resp.data.total);
