@@ -77,8 +77,12 @@ angular.module('starter.controllers', [])
       })
     };
 
+    $scope.$on('$ionicView.afterEnter', function () {
+      $scope.doRefresh();
+    });
+
     $scope.$on('stateChangeSuccess', function () {
-      $scope.LoadMore();
+      $scope.doRefresh();
     });
 
     $scope.canLoadMore = function () {
