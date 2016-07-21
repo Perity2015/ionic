@@ -22,7 +22,12 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
       }
     });
   })
-
+  .constant('$ionicLoadingConfig', {
+    animation: 'fade-in',
+    showBackdrop: true,
+    maxWidth: 200,
+    showDelay: 0
+  })
   .directive('hideTabs', function ($rootScope) {
     return {
       restrict: 'A',
@@ -32,7 +37,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
             $rootScope.hideTabs = value;
           });
         });
-
         scope.$on('$ionicView.beforeLeave', function () {
           $rootScope.hideTabs = false;
         });
@@ -49,7 +53,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
     $ionicConfigProvider.platform.ios.navBar.alignTitle('center');
     $ionicConfigProvider.platform.android.navBar.alignTitle('center');
 
-    $ionicConfigProvider.platform.ios.backButton.previousTitleText('').icon('ion-ios-arrow-thin-left');
+    $ionicConfigProvider.platform.ios.backButton.previousTitleText('').icon('ion-ios-arrow-back');
     $ionicConfigProvider.platform.android.backButton.previousTitleText('').icon('ion-android-arrow-back');
 
     $ionicConfigProvider.platform.ios.views.transition('ios');
@@ -73,7 +77,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
           views: {
             'tab-records': {
               templateUrl: 'templates/tab-login.html',
-              controller: 'AccountCtrl'
+              controller: 'UserCtrl'
             }
           }
         }
@@ -84,18 +88,18 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
         views: {
           'tab-account': {
             templateUrl: 'templates/tab-login.html',
-            controller: 'AccountCtrl'
+            controller: 'UserCtrl'
           }
         }
       })
 
       // Each tab has its own nav history stack:
 
-      .state('tab.dash', {
-        url: '/dash',
+      .state('tab.about', {
+        url: '/about',
         views: {
-          'tab-dash': {
-            templateUrl: 'templates/tab-dash.html',
+          'tab-about': {
+            templateUrl: 'templates/tab-about.html',
             controller: 'DashCtrl'
           }
         }
@@ -106,27 +110,57 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
         views: {
           'tab-records': {
             templateUrl: 'templates/tab-records.html',
-            controller: 'ChatsCtrl'
+            controller: 'CardCtrl'
           }
         }
       })
 
-      .state('tab.records-detail', {
-        url: '/records/:chatId',
+      .state('tab.records-wl', {
+        url: '/records/wl',
         views: {
           'tab-records': {
-            templateUrl: 'templates/chat-detail.html',
-            controller: 'ChatDetailCtrl'
+            templateUrl: 'templates/wl-records.html',
+            controller: 'WlRecordsCtrl'
           }
         }
       })
 
-      .state('tab.account', {
-        url: '/account',
+      .state('tab.records-dzs', {
+        url: '/records/dzs',
         views: {
-          'tab-account': {
-            templateUrl: 'templates/tab-account.html',
-            controller: 'AccountCtrl'
+          'tab-records': {
+            templateUrl: 'templates/wl-records.html',
+            controller: 'WlRecordsCtrl'
+          }
+        }
+      })
+
+      .state('tab.records-ll', {
+        url: '/records/ll',
+        views: {
+          'tab-records': {
+            templateUrl: 'templates/wl-records.html',
+            controller: 'WlRecordsCtrl'
+          }
+        }
+      })
+
+      .state('tab.records-wl-detail', {
+        url: '/records/wl/detail',
+        views: {
+          'tab-records': {
+            templateUrl: 'templates/wl-record-detail.html',
+            controller: 'WlRecordDetailCtrl'
+          }
+        }
+      })
+
+      .state('tab.user', {
+        url: '/user',
+        views: {
+          'tab-user': {
+            templateUrl: 'templates/tab-user.html',
+            controller: 'UserCtrl'
           }
         }
       })
@@ -135,6 +169,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
     ;
 
     // if none of the above states are matched, use this as the fallback
-    $urlRouterProvider.otherwise('/tab/dash');
+    $urlRouterProvider.otherwise('/tab/about');
 
   });

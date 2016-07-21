@@ -14,9 +14,34 @@ angular.module('starter.services', [])
     };
   })
 
-  .factory('Chats', function () {
-    // Might use a resource here that returns a JSON array
-    var chat = {
+  .factory('Cards', function () {
+    var cards = [{
+      related: 'wl',
+      img: "img/user.jpg",
+      title: "物流",
+      memo: "查询"
+    }, {
+      related: 'dzs',
+      img: "img/user.jpg",
+      title: "电子锁",
+      memo: "查询"
+    }, {
+      related: 'll',
+      img: "img/user.jpg",
+      title: "冷链",
+      memo: "查询"
+    }];
+
+    return {
+      getWlRecords: function () {
+        return cards;
+      }
+    }
+  })
+
+  .factory('WlRecords', function ($filter) {
+    // 物流运输记录
+    var wlRecord = {
       beginaddr: null,
       beginorgna_id: null,
       beginorgna_name: null,
@@ -47,56 +72,78 @@ angular.module('starter.services', [])
       endlat: null,
       endlng: null
     };
-    // Some fake testing data
-    var chats = [];
+    //运输记录位置
+    var wlPosition = {
+      bok: null,
+      lockpostion: null,
+      rfid: null
+    };
+
+    var wlRecords = [];
+    var wlPositions = [];
     var total = 0;
+    //第一次进入时刷新
+    var firstEnter = true;
 
     return {
-      all: function () {
-        return chats;
+      getWlRecords: function () {
+        return wlRecords;
       },
-      remove: function (chat) {
-        chats.splice(chats.indexOf(chat), 1);
-      },
-      update: function (items, $filter) {
-        chats = new Array();
+      updateWlRecords: function (items) {
+        wlRecords = [];
         var i;
         for (i in items) {
           items[i].begintime = $filter("jsonDate")(items[i].begintime, "yyyy-MM-dd HH:mm:ss");
           items[i].endtime = $filter("jsonDate")(items[i].endtime, "yyyy-MM-dd HH:mm:ss");
-          chats.push(items[i]);
+          wlRecords.push(items[i]);
         }
       },
-      get: function (chatId) {
-        for (var i = 0; i < chats.length; i++) {
-          if (chats[i].id === parseInt(chatId)) {
-            return chats[i];
-          }
-        }
-        return null;
+      updateWlRecord: function (item) {
+        wlRecord = item;
       },
-      add: function (items, $filter) {
+      getWlRecord: function () {
+        return wlRecord;
+      },
+      addWlRecords: function (items) {
         var i;
         for (i in items) {
           items[i].begintime = $filter("jsonDate")(items[i].begintime, "yyyy-MM-dd HH:mm:ss");
           items[i].endtime = $filter("jsonDate")(items[i].endtime, "yyyy-MM-dd HH:mm:ss");
-          chats.push(items[i]);
+          wlRecords.push(items[i]);
         }
       },
       updateTotal: function (tempTotal) {
         total = tempTotal;
       },
       canLoadMore: function () {
-        return total > chats.length;
+        return total > wlRecords.length;
       },
       length: function () {
-        return chats.length / 10;
+        return wlRecords.length / 10;
+      },
+      getFirstEnter: function () {
+        return firstEnter;
+      },
+      updateFirstEnter: function (flag) {
+        firstEnter = flag;
+      },
+      getWlPositions: function () {
+        return wlPositions;
+      },
+      updateWlPositions: function (items) {
+        wlPositions = [];
+        var i;
+        for (i in items) {
+          wlPositions.push(items[i]);
+        }
+      },
+      getWlPosition: function (rfid) {
+
       }
     }
-      ;
   })
 
-  //本地存储数据===================================
+  //本地存储数据
   .factory('locals', ['$window', function ($window) {
     return {
       //存储单个属性
@@ -104,7 +151,7 @@ angular.module('starter.services', [])
         $window.localStorage[key] = value;
       },
       //读取单个属性
-      get: function (key, defaultValue) {
+      getWlRecord: function (key, defaultValue) {
         return $window.localStorage[key] || defaultValue;
       },
       //存储对象，以JSON格式存储
@@ -119,20 +166,18 @@ angular.module('starter.services', [])
     }
   }])
 
-  .factory('Account', function (locals,$ionicHistory,$location) {
+  .factory('Account', function (locals) {
     var user = {
-      username: 'yc',
-      password: '0'
+      username: '',
+      password: ''
     };
-
-    var userInfo ;
-
+    var userInfo;
     return {
       instance: function () {
         return user;
       },
 
-      update: function (tempUser) {
+      updateWlRecords: function (tempUser) {
         user = tempUser;
       },
 
@@ -143,15 +188,15 @@ angular.module('starter.services', [])
 
       updateUserInfo: function (tempUserInfo) {
         userInfo = tempUserInfo;
-        locals.setObject("userInfo",userInfo);
+        locals.setObject("userInfo", userInfo);
       },
 
-      clean:function () {
+      clean: function () {
         // $ionicHistory.clearCache();
         var exp = new Date();
         exp.setTime(exp.getTime() - 1);
         console.info(document.cookie);
-          document.cookie= "sessionID=aaa;";
+        document.cookie = "sessionID=aaa;";
         // $location.path("/account/login");
         console.info(document.cookie);
       }

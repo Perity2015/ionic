@@ -1,14 +1,13 @@
 angular.module('starter.controllers', [])
-  .controller(function ($scope, $ionicPopup, $timeout) {
 
+  .controller('CardCtrl', function ($scope, Cards) {
+    $scope.cards = Cards.getWlRecords();
   })
-
-
 
   .controller('DashCtrl', function ($scope) {
   })
 
-  .controller('ChatsCtrl', function ($scope, $http, $location, $filter, $ionicScrollDelegate, Chats) {
+  .controller('WlRecordsCtrl', function ($scope, $http, $location, $ionicScrollDelegate, WlRecords) {
     // With the new view caching in Ionic, Controllers are only called
     // when they are recreated or on app start, instead of every page change.
     // To listen for when this page is active (for example, to refresh data),
@@ -16,20 +15,15 @@ angular.module('starter.controllers', [])
     //
     //$scope.$on('$ionicView.enter', function(e) {
     //});
+    $scope.wlRecords = WlRecords.getWlRecords();
 
     $scope.shouldShow = function () {
       var top = $ionicScrollDelegate.getScrollPosition().top;
-      console.info(top);
       return top > 800;
     }
 
     $scope.scrollTop = function () {
       $ionicScrollDelegate.scrollTop(true);
-    };
-
-    $scope.chats = Chats.all();
-    $scope.remove = function (chat) {
-      Chats.remove(chat);
     };
 
     $scope.doRefresh = function () {
@@ -40,13 +34,13 @@ angular.module('starter.controllers', [])
       });
       promise.then(function (resp) {
         console.info(resp.data.rows);
-        if (resp.headers("sessionStatus")) {
+        if (resp.headers("sessionStatus") == "clear") {
           $location.path('/tab/login');
           return;
         }
-        Chats.updateTotal(resp.data.total);
-        Chats.update(resp.data.rows, $filter);
-        $scope.chats = Chats.all();
+        WlRecords.updateTotal(resp.data.total);
+        WlRecords.updateWlRecords(resp.data.rows);
+        $scope.wlRecords = WlRecords.getWlRecords();
 
       }, function (resp) {
 
@@ -60,18 +54,18 @@ angular.module('starter.controllers', [])
       var promise = $http({
         method: 'POST',
         url: '/OnceRfid.BaseOnceRfid/GetLinkGoodRecord_RawJson.ajax',
-        data: {page: Chats.length() + 1, rows: '10'}
+        data: {page: WlRecords.length() + 1, rows: '10'}
       });
 
       promise.then(function (resp) {
         // console.info(resp.data.rows);
-        if (resp.headers("sessionStatus")) {
+        if (resp.headers("sessionStatus") == "clear") {
           $location.path('/tab/login');
           return;
         }
-        Chats.updateTotal(resp.data.total);
-        Chats.add(resp.data.rows, $filter);
-        $scope.chats = Chats.all();
+        WlRecords.updateTotal(resp.data.total);
+        WlRecords.addWlRecords(resp.data.rows);
+        $scope.wlRecords = WlRecords.getWlRecords();
       }, function (resp) {
 
       }).finally(function () {
@@ -79,40 +73,49 @@ angular.module('starter.controllers', [])
       })
     };
 
-    // $scope.$on('$ionicView.afterEnter', function () {
-    //   $scope.doRefresh();
-    // });
+    $scope.$on('$ionicView.afterEnter', function () {
+      if (WlRecords.getFirstEnter()) {
+        WlRecords.updateFirstEnter(false);
+        $scope.doRefresh();
+      }
+    });
 
     $scope.$on('stateChangeSuccess', function () {
       $scope.doRefresh();
     });
 
     $scope.canLoadMore = function () {
-      return Chats.canLoadMore();
+      return WlRecords.canLoadMore();
+    }
+
+    $scope.viewDetail = function (wlRecord) {
+      WlRecords.updateWlRecord(wlRecord);
+      $location.path("/tab/records/wl/detail");
     }
   })
 
-  .controller('ChatDetailCtrl', function ($scope, $stateParams, Chats) {
-    $scope.chat = Chats.get($stateParams.chatId);
-    console.info($scope.chat);
+  .controller('WlRecordDetailCtrl', function ($scope, $http, $ionicPopup, $ionicLoading, WlRecords) {
+    var myPopup;
+
+    $scope.wlRecord = WlRecords.getWlRecord();
     $scope.$on('$ionicView.beforeEnter', function () {
       var map = new BMap.Map("mapContainer");    // 创建Map实例
       map.disableScrollWheelZoom();     //开启鼠标滚轮缩放
       map.disableDoubleClickZoom();
       map.disablePinchToZoom();
       map.disableDragging();
-      if ($scope.chat.beginlat == null && $scope.chat.endlat == null) {
+      if ($scope.wlRecord.beginlat == null && $scope.wlRecord.endlat == null) {
         map.centerAndZoom(new BMap.Point(116.404, 39.915), 11);  // 初始化地图,设置中心点坐标和地图级别
         map.setCurrentCity("北京");          // 设置地图显示的城市 此项是必须设置的
         return;
       }
       var points = new Array();
-      if ($scope.chat.beginlat != null) {
-        var point = new BMap.Point($scope.chat.beginlng, $scope.chat.beginlat);
+      if ($scope.wlRecord.beginlat != null) {
+        var point = new BMap.Point($scope.wlRecord.beginlng, $scope.wlRecord.beginlat);
         points.push(point);
       }
-      if ($scope.chat.endlat != null) {
-        var point = new BMap.Point($scope.chat.endlng, $scope.chat.endlat);
+      if ($scope.wlRecord.endlat != null) {
+        var point = new BMap.Point($scope.wlRecord.endlng, $scope.wlRecord.endlat);
         points.push(point);
       }
 
@@ -137,10 +140,49 @@ angular.module('starter.controllers', [])
 
     }, false);
 
+    $scope.$on('$destroy',function () {
+      if (myPopup != null){
+        myPopup.close();
+      }
+    });
 
+    $scope.viewPosition = function (wlPosition) {
+      myPopup.close();
+    };
+
+    $scope.getWlRecordPositions = function () {
+      $ionicLoading.show();
+      var promise = $http({
+        method: 'POST',
+        url: '/OnceRfid.BaseOnceRfid/GetLinkGoodRfids.ajax',
+        data: {linkrfid: $scope.wlRecord.linkrfid}
+      });
+      promise.then(function (resp) {
+        if (resp.headers("sessionStatus") == "clear") {
+          $location.path('/tab/login');
+          return;
+        }
+        var returnObj = resp.data;
+        if (!returnObj.bOK) {
+          return;
+        }
+        WlRecords.updateWlPositions(returnObj.m_ReturnOBJ);
+        $scope.wlPositions = WlRecords.getWlPositions();
+        myPopup = $ionicPopup.show({
+          template: '<div class="list">  <ion-item class="item" ng-repeat="wlPosition in wlPositions" type="item-text-wrap"  ng-click="viewPosition(wlPosition)">{{wlPosition.lockpostion}}</ion-item></div>',
+          title: '请选择位置',
+          scope: $scope
+        });
+
+      }, function (resp) {
+
+      }).finally(function () {
+        $ionicLoading.hide();
+      })
+    };
   })
 
-  .controller('AccountCtrl', function ($scope, $stateParams, $ionicModal, $ionicHistory, $ionicPopover, $timeout, $location, $ionicPopup, $http, Account) {
+  .controller('UserCtrl', function ($scope, $stateParams, $ionicModal, $ionicHistory, $ionicLoading, $ionicPopover, $timeout, $location, $ionicPopup, $http, Account) {
     $scope.user = Account.instance();
     $scope.userInfo = Account.instanceUserInfo();
 
@@ -149,7 +191,7 @@ angular.module('starter.controllers', [])
     });
 
     $scope.quitLogin = function () {
-      Account.clean();
+      // Account.clean();
       $location.path("/tab/loginAgain");
     };
 
@@ -159,7 +201,8 @@ angular.module('starter.controllers', [])
         return
       }
 
-      Account.update(user);
+      $ionicLoading.show();
+      Account.updateWlRecords(user);
 
       var promise = $http({
         method: 'POST',
@@ -167,6 +210,7 @@ angular.module('starter.controllers', [])
         data: user
       });
       promise.then(function (resp) {
+        $ionicLoading.hide();
         if (!resp.data.bOK) {
           $scope.showAlert(resp.data.sMsg);
           return;
@@ -177,7 +221,7 @@ angular.module('starter.controllers', [])
         console.info(resp.headers("sessionStatus"));
         $ionicHistory.goBack();
       }, function (resp) {
-
+        $ionicLoading.hide();
       });
     }
 

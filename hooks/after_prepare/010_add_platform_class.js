@@ -14,7 +14,7 @@ var path = require('path');
 var rootdir = process.argv[2];
 
 function addPlatformBodyTag(indexPath, platform) {
-  // add the platform class to the body tag
+  // addWlRecords the platform class to the body tag
   try {
     var platformClass = 'platform-' + platform;
     var cordovaClass = 'platform-cordova platform-webview';
@@ -30,14 +30,14 @@ function addPlatformBodyTag(indexPath, platform) {
 
     var classAttr = findClassAttr(bodyTag);
     if(classAttr) {
-      // body tag has existing class attribute, add the classname
+      // body tag has existing class attribute, addWlRecords the classname
       var endingQuote = classAttr.substring(classAttr.length-1);
       var newClassAttr = classAttr.substring(0, classAttr.length-1);
       newClassAttr += ' ' + platformClass + ' ' + cordovaClass + endingQuote;
       newBodyTag = bodyTag.replace(classAttr, newClassAttr);
 
     } else {
-      // add class attribute to the body tag
+      // addWlRecords class attribute to the body tag
       newBodyTag = bodyTag.replace('>', ' class="' + platformClass + ' ' + cordovaClass + '">');
     }
 
@@ -45,7 +45,7 @@ function addPlatformBodyTag(indexPath, platform) {
 
     fs.writeFileSync(indexPath, html, 'utf8');
 
-    process.stdout.write('add to body class: ' + platformClass + '\n');
+    process.stdout.write('addWlRecords to body class: ' + platformClass + '\n');
   } catch(e) {
     process.stdout.write(e);
   }
