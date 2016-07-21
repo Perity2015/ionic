@@ -86,7 +86,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
       .state('tab.loginAgain', {
         url: '/loginAgain',
         views: {
-          'tab-account': {
+          'tab-user': {
             templateUrl: 'templates/tab-login.html',
             controller: 'UserCtrl'
           }
