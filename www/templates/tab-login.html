@@ -2,10 +2,10 @@
   <ion-content>
     <div class="list list-inset">
       <label class="item item-input">
-        <input type="text" placeholder="username" ng-model="user.username" value=“{{user.username}}”></label>
+        <input type="text" placeholder="username" ng-model="userInfo.username" value=“{{userInfo.username}}”></label>
       <label class="item item-input">
-        <input type="password" placeholder="password" ng-model="user.password" value="{{user.password}}"></label>
-      <button class="button button-full button-positive" ng-click="login(user)">登录</button>
+        <input type="password" placeholder="password" ng-model="userInfo.password" value="{{userInfo.password}}"></label>
+      <button class="button button-full button-positive" ng-click="login(userInfo)">登录</button>
     </div>
   </ion-content>
 </ion-view>

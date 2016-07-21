@@ -1,0 +1,12 @@
+<ion-view hide-tabs="true" view-title="{{wlPosition.lockpostion}}">
+  <ion-content>
+    <ion-list>
+      <ion-item class="item" ng-repeat="step in steps">
+        <h2 ng-show="step.title">{{step.title}}</h2>
+        <p ng-show="step.name">
+          <h2 style="width: 30%;">{{step.name}}</h2>  <img src='{{step.image}}' ng-show="step.image"> <h2 ng-show="step.value">{{step.value}}</h2>
+        </p>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>

@@ -1,20 +1,20 @@
 angular.module('starter.controllers', [])
 
-  .controller('CardCtrl', function ($scope, Cards) {
+  .controller('CardCtrl', function ($scope, Cards, Account) {
     $scope.cards = Cards.getWlRecords();
+
+    $scope.$on('$ionicView.enter', function () {
+      if (Account.getUserInfo().username) {
+        return;
+      }
+
+    });
   })
 
   .controller('DashCtrl', function ($scope) {
   })
 
-  .controller('WlRecordsCtrl', function ($scope, $http, $location, $ionicScrollDelegate, WlRecords) {
-    // With the new view caching in Ionic, Controllers are only called
-    // when they are recreated or on app start, instead of every page change.
-    // To listen for when this page is active (for example, to refresh data),
-    // listen for the $ionicView.enter event:
-    //
-    //$scope.$on('$ionicView.enter', function(e) {
-    //});
+  .controller('WlRecordsCtrl', function ($scope, $http, $location, $ionicScrollDelegate, WlRecords, Account) {
     $scope.wlRecords = WlRecords.getWlRecords();
 
     $scope.shouldShow = function () {
@@ -35,11 +35,11 @@ angular.module('starter.controllers', [])
       promise.then(function (resp) {
         console.info(resp.data.rows);
         if (resp.headers("sessionStatus") == "clear") {
-          $location.path('/tab/login');
+          $location.path('/tab/loginAgain');
           return;
         }
-        WlRecords.updateTotal(resp.data.total);
-        WlRecords.updateWlRecords(resp.data.rows);
+        WlRecords.setTotal(resp.data.total);
+        WlRecords.setWlRecords(resp.data.rows);
         $scope.wlRecords = WlRecords.getWlRecords();
 
       }, function (resp) {
@@ -60,10 +60,10 @@ angular.module('starter.controllers', [])
       promise.then(function (resp) {
         // console.info(resp.data.rows);
         if (resp.headers("sessionStatus") == "clear") {
-          $location.path('/tab/login');
+          $location.path('/tab/loginAgain');
           return;
         }
-        WlRecords.updateTotal(resp.data.total);
+        WlRecords.setTotal(resp.data.total);
         WlRecords.addWlRecords(resp.data.rows);
         $scope.wlRecords = WlRecords.getWlRecords();
       }, function (resp) {
@@ -73,15 +73,11 @@ angular.module('starter.controllers', [])
       })
     };
 
-    $scope.$on('$ionicView.afterEnter', function () {
-      if (WlRecords.getFirstEnter()) {
-        WlRecords.updateFirstEnter(false);
+    $scope.$on('$ionicView.beforeEnter', function () {
+      if (Account.getFirstEnter()) {
+        Account.setFirstEnter(false);
         $scope.doRefresh();
       }
-    });
-
-    $scope.$on('stateChangeSuccess', function () {
-      $scope.doRefresh();
     });
 
     $scope.canLoadMore = function () {
@@ -89,16 +85,16 @@ angular.module('starter.controllers', [])
     }
 
     $scope.viewDetail = function (wlRecord) {
-      WlRecords.updateWlRecord(wlRecord);
+      WlRecords.setWlRecord(wlRecord);
       $location.path("/tab/records/wl/detail");
     }
   })
 
-  .controller('WlRecordDetailCtrl', function ($scope, $http, $ionicPopup, $ionicLoading, WlRecords) {
+  .controller('WlRecordDetailCtrl', function ($scope, $http, $location, $ionicPopup, $ionicLoading, WlRecords, Picture) {
     var myPopup;
-
     $scope.wlRecord = WlRecords.getWlRecord();
-    $scope.$on('$ionicView.beforeEnter', function () {
+
+    $scope.$on('$ionicView.loaded', function () {
       var map = new BMap.Map("mapContainer");    // 创建Map实例
       map.disableScrollWheelZoom();     //开启鼠标滚轮缩放
       map.disableDoubleClickZoom();
@@ -140,14 +136,16 @@ angular.module('starter.controllers', [])
 
     }, false);
 
-    $scope.$on('$destroy',function () {
-      if (myPopup != null){
+    $scope.$on('$ionicView.beforeLeave', function () {
+      if (myPopup != null) {
         myPopup.close();
       }
     });
 
     $scope.viewPosition = function (wlPosition) {
+      WlRecords.setWlPosition(wlPosition);
       myPopup.close();
+      $location.path('/tab/records/wl/detail/position');
     };
 
     $scope.getWlRecordPositions = function () {
@@ -159,14 +157,14 @@ angular.module('starter.controllers', [])
       });
       promise.then(function (resp) {
         if (resp.headers("sessionStatus") == "clear") {
-          $location.path('/tab/login');
+          $location.path('/tab/loginAgain');
           return;
         }
         var returnObj = resp.data;
         if (!returnObj.bOK) {
           return;
         }
-        WlRecords.updateWlPositions(returnObj.m_ReturnOBJ);
+        WlRecords.setWlPositions(returnObj.m_ReturnOBJ);
         $scope.wlPositions = WlRecords.getWlPositions();
         myPopup = $ionicPopup.show({
           template: '<div class="list">  <ion-item class="item" ng-repeat="wlPosition in wlPositions" type="item-text-wrap"  ng-click="viewPosition(wlPosition)">{{wlPosition.lockpostion}}</ion-item></div>',
@@ -180,34 +178,104 @@ angular.module('starter.controllers', [])
         $ionicLoading.hide();
       })
     };
+
+    $scope.viewRecordPicture = function () {
+      Picture.setPicture("img/user.jpg", $scope.wlRecord.papermemo, "运单");
+      $location.path('/tab/pictureView');
+    }
   })
 
-  .controller('UserCtrl', function ($scope, $stateParams, $ionicModal, $ionicHistory, $ionicLoading, $ionicPopover, $timeout, $location, $ionicPopup, $http, Account) {
-    $scope.user = Account.instance();
-    $scope.userInfo = Account.instanceUserInfo();
+  .controller('WlRecordPositionCtrl', function ($scope, $http, $location, $ionicLoading, WlRecords) {
+    $scope.wlPosition = WlRecords.getWlPosition();
 
-    $scope.$on('$stateChangeSuccess', function () {
-      $scope.userInfo = Account.instanceUserInfo();
+    $scope.$on('$ionicView.loaded', function () {
+      $ionicLoading.show();
+      var promise = $http({
+        method: 'POST',
+        url: '/OnceRfid.BaseOnceRfid/GetLinkGoodRfidSteps.ajax',
+        data: {rfid: $scope.wlPosition.rfid, linkrfid: WlRecords.getWlRecord().linkrfid}
+      });
+
+      promise.then(function (resp) {
+        if (resp.headers("sessionStatus") == "clear") {
+          $location.path('/tab/loginAgain');
+          return;
+        }
+        console.info(resp.data.m_ReturnOBJ);
+        var m_ReturnOBJ = resp.data.m_ReturnOBJ;
+        var stepInfos = [];
+        for (var i = 0; i < m_ReturnOBJ.length; i++) {
+          var object = m_ReturnOBJ[i];
+          var stepInfo = {};
+          stepInfo.title = object.stepname;
+          stepInfos.push(stepInfo);
+
+          stepInfo = {};
+          stepInfo.name = "操作时间";
+          stepInfo.value = WlRecords.formatDate(object.createtime);
+          stepInfos.push(stepInfo);
+
+          var fieldjson = JSON.parse(object.fieldjson);
+          for (var key in fieldjson) {
+            if (key == "files") {
+              continue;
+            }
+            stepInfo = {};
+            stepInfo.name = key;
+            stepInfo.value = fieldjson[key];
+            stepInfos.push(stepInfo);
+          }
+          var files = fieldjson.files;
+          for (var j = 0; j < files.length; j++) {
+            var file = files[i];
+            stepInfo = {};
+            stepInfo.name = file.fieldshowname;
+            stepInfo.image = file.fileurl;
+            stepInfos.push(stepInfo);
+          }
+
+          if (!object.bok) {
+            stepInfo = {};
+            stepInfo.name = "异常信息";
+            stepInfo.value = object.errormsg;
+            stepInfos.push(stepInfo);
+          }
+
+        }
+        $scope.steps = stepInfos;
+      }, function (resp) {
+
+      }).finally(function () {
+        $ionicLoading.hide();
+      })
+    });
+  })
+
+  .controller('PictureCtrl', function ($scope, Picture) {
+    $scope.picture = Picture.getPicture();
+  })
+
+  .controller('UserCtrl', function ($scope, $ionicHistory, $ionicLoading, $timeout, $location, $ionicPopup, $http, Account) {
+    $scope.userInfo = Account.getUserInfo();
+
+    $scope.$on('$ionicView.beforeEnter', function () {
+      $scope.userInfo = Account.getUserInfo();
     });
 
     $scope.quitLogin = function () {
-      // Account.clean();
-      $location.path("/tab/loginAgain");
+      $location.path("/tab/login");
     };
 
-    $scope.login = function (user) {
-      if (undefined == user || user.username == '' || user.password == '') {
+    $scope.login = function (userInfo) {
+      if (undefined == userInfo || userInfo.username == "" || userInfo.password == "") {
         $scope.showAlert('请输入完整信息');
         return
       }
-
       $ionicLoading.show();
-      Account.updateWlRecords(user);
-
       var promise = $http({
         method: 'POST',
         url: '/CoreSYS.SYS/LGKeyLogin.index.ajax',
-        data: user
+        data: {username: userInfo.username, password: userInfo.password}
       });
       promise.then(function (resp) {
         $ionicLoading.hide();
@@ -216,20 +284,31 @@ angular.module('starter.controllers', [])
           return;
         }
         var tempUserInfo = resp.data.m_ReturnOBJ.m_UserInfo;
-        Account.updateUserInfo(tempUserInfo)
-        // $location.path('/tab/account');
-        console.info(resp.headers("sessionStatus"));
+        Account.setUserInfo(tempUserInfo);
+        Account.setFirstEnter(true);
         $ionicHistory.goBack();
       }, function (resp) {
+
+      }).finally(function () {
         $ionicLoading.hide();
       });
     }
 
+    var alertPopup;
     $scope.showAlert = function (msg) {
-      var alertPopup = $ionicPopup.alert({
+      alertPopup = $ionicPopup.alert({
         title: '提示',
         template: msg,
         buttons: [{text: '确认', type: 'button-positive'}]
       });
+      $timeout(function () {
+        alertPopup.close();
+      }, 3000);
     }
+
+    $scope.$on('$ionicView.beforeLeave', function () {
+      if (alertPopup != null) {
+        alertPopup.close();
+      }
+    });
   });

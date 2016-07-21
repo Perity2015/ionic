@@ -3,7 +3,7 @@
     <ion-refresher pulling-text="下拉刷新……" pulling-icon="ion-load-a"
                    on-refresh="doRefresh()"></ion-refresher>
     <ion-list>
-      <ion-item class="item-remove-animate item-avatar item-icon-right" ng-repeat="wlRecord in wlRecords" type="item-text-wrap" ng-click="viewDetail(wlRecord)">
+      <ion-item class="item item-avatar item-icon-right" ng-repeat="wlRecord in wlRecords" type="item-text-wrap" ng-click="viewDetail(wlRecord)">
         <img src='img/record_item_logo.jpg'>
         <h2>{{wlRecord.linkgoodname}}</h2>
         <p>{{wlRecord.begintime}}</p>

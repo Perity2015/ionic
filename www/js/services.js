@@ -14,6 +14,30 @@ angular.module('starter.services', [])
     };
   })
 
+
+  //本地存储数据
+  .factory('locals', ['$window', function ($window) {
+    return {
+      //存储单个属性
+      set: function (key, value) {
+        $window.localStorage[key] = value;
+      },
+      //读取单个属性
+      getWlRecord: function (key, defaultValue) {
+        return $window.localStorage[key] || defaultValue;
+      },
+      //存储对象，以JSON格式存储
+      setObject: function (key, value) {
+        $window.localStorage[key] = JSON.stringify(value);
+      },
+      //读取对象
+      getObject: function (key) {
+        return JSON.parse($window.localStorage[key] || '{}');
+      }
+
+    }
+  }])
+
   .factory('Cards', function () {
     var cards = [{
       related: 'wl',
@@ -41,55 +65,19 @@ angular.module('starter.services', [])
 
   .factory('WlRecords', function ($filter) {
     // 物流运输记录
-    var wlRecord = {
-      beginaddr: null,
-      beginorgna_id: null,
-      beginorgna_name: null,
-      begintime: null,
-      beginuser: null,
-      beginusername: null,
-      bok: true,
-      bover: false,
-      company: null,
-      companyid: null,
-      deskaddr: null,
-      endaddr: null,
-      endorgna_id: 0,
-      endorgna_name: null,
-      endtime: null,
-      enduser: null,
-      endusername: null,
-      errormsg: null,
-      flowid: 33,
-      flowname: null,
-      id: 16322,
-      linkrfid: null,
-      linkgoodname: null,
-      overpaperpic: null,
-      papermemo: null,
-      beginlat: null,
-      beginlng: null,
-      endlat: null,
-      endlng: null
-    };
+    var wlRecord;
     //运输记录位置
-    var wlPosition = {
-      bok: null,
-      lockpostion: null,
-      rfid: null
-    };
+    var wlPosition;
 
     var wlRecords = [];
     var wlPositions = [];
     var total = 0;
-    //第一次进入时刷新
-    var firstEnter = true;
 
     return {
       getWlRecords: function () {
         return wlRecords;
       },
-      updateWlRecords: function (items) {
+      setWlRecords: function (items) {
         wlRecords = [];
         var i;
         for (i in items) {
@@ -98,7 +86,7 @@ angular.module('starter.services', [])
           wlRecords.push(items[i]);
         }
       },
-      updateWlRecord: function (item) {
+      setWlRecord: function (item) {
         wlRecord = item;
       },
       getWlRecord: function () {
@@ -112,7 +100,7 @@ angular.module('starter.services', [])
           wlRecords.push(items[i]);
         }
       },
-      updateTotal: function (tempTotal) {
+      setTotal: function (tempTotal) {
         total = tempTotal;
       },
       canLoadMore: function () {
@@ -121,84 +109,60 @@ angular.module('starter.services', [])
       length: function () {
         return wlRecords.length / 10;
       },
-      getFirstEnter: function () {
-        return firstEnter;
-      },
-      updateFirstEnter: function (flag) {
-        firstEnter = flag;
-      },
       getWlPositions: function () {
         return wlPositions;
       },
-      updateWlPositions: function (items) {
+      setWlPositions: function (items) {
         wlPositions = [];
         var i;
         for (i in items) {
           wlPositions.push(items[i]);
         }
       },
-      getWlPosition: function (rfid) {
-
+      getWlPosition: function () {
+        return wlPosition;
+      },
+      setWlPosition: function (item) {
+        wlPosition = item;
+      },
+      formatDate:function (date) {
+        return $filter("jsonDate")(date, "yyyy-MM-dd HH:mm:ss");
       }
     }
   })
 
-  //本地存储数据
-  .factory('locals', ['$window', function ($window) {
+  .factory('Picture', function () {
+    var picture;
     return {
-      //存储单个属性
-      set: function (key, value) {
-        $window.localStorage[key] = value;
+      getPicture:function () {
+        return  picture;
       },
-      //读取单个属性
-      getWlRecord: function (key, defaultValue) {
-        return $window.localStorage[key] || defaultValue;
-      },
-      //存储对象，以JSON格式存储
-      setObject: function (key, value) {
-        $window.localStorage[key] = JSON.stringify(value);
-      },
-      //读取对象
-      getObject: function (key) {
-        return JSON.parse($window.localStorage[key] || null);
+      setPicture: function (imageUrl, memo,title) {
+        picture.imageUrl = imageUrl;
+        picture.memo = memo;
+        picture.title = title;
       }
-
     }
-  }])
+  })
 
   .factory('Account', function (locals) {
-    var user = {
-      username: '',
-      password: ''
-    };
     var userInfo;
+    //第一次进入时刷新
+    var firstEnter = true;
     return {
-      instance: function () {
-        return user;
-      },
-
-      updateWlRecords: function (tempUser) {
-        user = tempUser;
-      },
-
-      instanceUserInfo: function () {
+      getUserInfo: function () {
         userInfo = locals.getObject("userInfo");
         return userInfo;
       },
-
-      updateUserInfo: function (tempUserInfo) {
+      setUserInfo: function (tempUserInfo) {
         userInfo = tempUserInfo;
         locals.setObject("userInfo", userInfo);
       },
-
-      clean: function () {
-        // $ionicHistory.clearCache();
-        var exp = new Date();
-        exp.setTime(exp.getTime() - 1);
-        console.info(document.cookie);
-        document.cookie = "sessionID=aaa;";
-        // $location.path("/account/login");
-        console.info(document.cookie);
+      getFirstEnter: function () {
+        return firstEnter;
+      },
+      setFirstEnter: function (flag) {
+        firstEnter = flag;
       }
     };
   });

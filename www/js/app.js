@@ -23,6 +23,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
     });
   })
   .constant('$ionicLoadingConfig', {
+    template: '<ion-spinner icon="bubbles" class="spinner-balanced"></ion-spinner>',
     animation: 'fade-in',
     showBackdrop: true,
     maxWidth: 200,
@@ -53,8 +54,8 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
     $ionicConfigProvider.platform.ios.navBar.alignTitle('center');
     $ionicConfigProvider.platform.android.navBar.alignTitle('center');
 
-    $ionicConfigProvider.platform.ios.backButton.previousTitleText('').icon('ion-ios-arrow-back');
-    $ionicConfigProvider.platform.android.backButton.previousTitleText('').icon('ion-android-arrow-back');
+    $ionicConfigProvider.platform.ios.backButton.previousTitleText('返回').icon('ion-ios-arrow-back');
+    $ionicConfigProvider.platform.android.backButton.previousTitleText('返回').icon('ion-android-arrow-back');
 
     $ionicConfigProvider.platform.ios.views.transition('ios');
     $ionicConfigProvider.platform.android.views.transition('android');
@@ -72,8 +73,8 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
         templateUrl: 'templates/tabs.html'
       })
 
-      .state('tab.login', {
-          url: '/login',
+      .state('tab.loginAgain', {
+          url: '/loginAgain',
           views: {
             'tab-records': {
               templateUrl: 'templates/tab-login.html',
@@ -83,8 +84,19 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
         }
       )
 
-      .state('tab.loginAgain', {
-        url: '/loginAgain',
+      .state('tab.pictureView', {
+          url: '/pictureView',
+          views: {
+            'tab-records': {
+              templateUrl: 'templates/tab-picture.html',
+              controller: 'PictureCtrl'
+            }
+          }
+        }
+      )
+
+      .state('tab.login', {
+        url: '/login',
         views: {
           'tab-user': {
             templateUrl: 'templates/tab-login.html',
@@ -151,6 +163,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
           'tab-records': {
             templateUrl: 'templates/wl-record-detail.html',
             controller: 'WlRecordDetailCtrl'
+          }
+        }
+      })
+
+      .state('tab.records-wl-detail-position', {
+        url: '/records/wl/detail/position',
+        views: {
+          'tab-records': {
+            templateUrl: 'templates/wl-record-detail-position.html',
+            controller: 'WlRecordPositionCtrl'
           }
         }
       })
