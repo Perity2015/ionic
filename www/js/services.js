@@ -41,17 +41,17 @@ angular.module('starter.services', [])
   .factory('Cards', function () {
     var cards = [{
       related: 'wl',
-      img: "img/user.jpg",
+      img: "img/user.png",
       title: "物流",
       memo: "查询"
     }, {
       related: 'dzs',
-      img: "img/user.jpg",
+      img: "img/user.png",
       title: "电子锁",
       memo: "查询"
     }, {
       related: 'll',
-      img: "img/user.jpg",
+      img: "img/user.png",
       title: "冷链",
       memo: "查询"
     }];

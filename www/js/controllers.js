@@ -90,7 +90,7 @@ angular.module('starter.controllers', [])
     }
   })
 
-  .controller('WlRecordDetailCtrl', function ($scope, $http, $location, $ionicPopup, $ionicLoading, WlRecords, Picture) {
+  .controller('WlRecordDetailCtrl', function ($scope, $http, $timeout,$location, $ionicPopup, $ionicLoading, WlRecords, Picture) {
     var myPopup;
     $scope.wlRecord = WlRecords.getWlRecord();
 
@@ -171,6 +171,10 @@ angular.module('starter.controllers', [])
           title: '请选择位置',
           scope: $scope
         });
+        $timeout(function () {
+          myPopup.close();
+        }, 10000);
+
 
       }, function (resp) {
 

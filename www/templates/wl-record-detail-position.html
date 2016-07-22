@@ -10,7 +10,8 @@
             <div class="item item-input">
               <span class="wl-position-name">{{item.name}}</span>
               <span ng-show="item.value" class="wl-position-value">{{item.value}}</span>
-              <img src='{{item.image}}' ng-show="item.image" ng-click="viewStepPicture(item)" class="wl-position-image">
+              <img src='{{item.image}}' onerror="javascript:this.src='img/image_default.png'"
+                   ng-show="item.image" ng-click="viewStepPicture(item)" class="wl-position-image">
             </div>
           </div>
         </ion-list>
