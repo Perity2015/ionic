@@ -132,7 +132,7 @@ angular.module('starter.services', [])
   })
 
   .factory('Picture', function () {
-    var picture;
+    var picture = {};
     return {
       getPicture:function () {
         return  picture;

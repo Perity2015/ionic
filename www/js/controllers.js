@@ -179,13 +179,13 @@ angular.module('starter.controllers', [])
       })
     };
 
-    $scope.viewRecordPicture = function () {
-      Picture.setPicture("img/user.jpg", $scope.wlRecord.papermemo, "运单");
+    $scope.viewRecordPicture = function (wlRecord) {
+      Picture.setPicture(wlRecord.overpaperpic, wlRecord.papermemo, "运单");
       $location.path('/tab/pictureView');
     }
   })
 
-  .controller('WlRecordPositionCtrl', function ($scope, $http, $location, $ionicLoading, WlRecords) {
+  .controller('WlRecordPositionCtrl', function ($scope, $http, $location, $ionicLoading, WlRecords, Picture) {
     $scope.wlPosition = WlRecords.getWlPosition();
 
     $scope.$on('$ionicView.loaded', function () {
@@ -201,47 +201,53 @@ angular.module('starter.controllers', [])
           $location.path('/tab/loginAgain');
           return;
         }
-        console.info(resp.data.m_ReturnOBJ);
         var m_ReturnOBJ = resp.data.m_ReturnOBJ;
-        var stepInfos = [];
+        var stepInfos = [m_ReturnOBJ.length];
+
         for (var i = 0; i < m_ReturnOBJ.length; i++) {
           var object = m_ReturnOBJ[i];
           var stepInfo = {};
+
+          stepInfo.id = i;
+          if(i == 0){
+            stepInfo.show ="show";
+          }
           stepInfo.title = object.stepname;
-          stepInfos.push(stepInfo);
+          stepInfo.time = WlRecords.formatDate(object.createtime);
 
-          stepInfo = {};
-          stepInfo.name = "操作时间";
-          stepInfo.value = WlRecords.formatDate(object.createtime);
-          stepInfos.push(stepInfo);
-
+          var items = [];
           var fieldjson = JSON.parse(object.fieldjson);
           for (var key in fieldjson) {
             if (key == "files") {
               continue;
             }
-            stepInfo = {};
-            stepInfo.name = key;
-            stepInfo.value = fieldjson[key];
-            stepInfos.push(stepInfo);
+            var item = {};
+            item.name = key;
+            item.value = fieldjson[key];
+            items.push(item);
+          }
+          if (!object.bok) {
+            var item = {};
+            item.name = "错误信息";
+            item.value = object.errormsg;
+            items.push(item);
           }
           var files = fieldjson.files;
           for (var j = 0; j < files.length; j++) {
-            var file = files[i];
-            stepInfo = {};
-            stepInfo.name = file.fieldshowname;
-            stepInfo.image = file.fileurl;
-            stepInfos.push(stepInfo);
+            var file = files[j];
+            var item = {};
+            if (file.fieldshowname)
+              item.name = file.fieldshowname;
+            else
+              item.name = "错误图片";
+            item.image = file.fileurl;
+            items.push(item);
           }
-
-          if (!object.bok) {
-            stepInfo = {};
-            stepInfo.name = "异常信息";
-            stepInfo.value = object.errormsg;
-            stepInfos.push(stepInfo);
-          }
-
+          stepInfo.items = items;
+          stepInfos[i] = stepInfo;
         }
+
+
         $scope.steps = stepInfos;
       }, function (resp) {
 
@@ -249,10 +255,33 @@ angular.module('starter.controllers', [])
         $ionicLoading.hide();
       })
     });
+
+    $scope.viewStepPicture = function (item) {
+      Picture.setPicture(item.image, null, item.name);
+      $location.path('/tab/pictureView');
+    };
+
+    $scope.displayShow = function (index) {
+      for (var i = 0;i<$scope.steps.length;i++){
+        if (i == index){
+          if ($scope.steps[i].show){
+            $scope.steps[i].show = null;
+          }else {
+            $scope.steps[i].show = "show";
+          }
+        }else {
+          $scope.steps[i].show = null;
+        }
+      }
+    };
   })
 
-  .controller('PictureCtrl', function ($scope, Picture) {
+  .controller('PictureCtrl', function ($scope, $ionicHistory, Picture) {
     $scope.picture = Picture.getPicture();
+
+    $scope.back = function () {
+      $ionicHistory.goBack();
+    }
   })
 
   .controller('UserCtrl', function ($scope, $ionicHistory, $ionicLoading, $timeout, $location, $ionicPopup, $http, Account) {

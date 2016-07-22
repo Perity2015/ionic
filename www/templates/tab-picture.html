@@ -1,11 +1,11 @@
-<ion-view hide-tabs="true" view-title="{{picture.title}}" >
+<ion-view hide-tabs="true" view-title="{{picture.title}}" style="background-color: #000000;">
   <ion-content padding="true">
     <div class="card">
-      <div style="text-align: center;padding:4px;" ng-show="memo">
+      <div style="text-align: center;padding:4px;" ng-show="picture.memo">
         <h3>{{picture.memo}}</h3>
       </div>
       <div class="item item-image">
-        <img src="{{picture.imageUrl}}">
+        <img src="{{picture.imageUrl}}" ng-click="back()">
       </div>
     </div>
   </ion-content>

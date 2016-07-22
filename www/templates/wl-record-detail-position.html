@@ -2,10 +2,18 @@
   <ion-content>
     <ion-list>
       <ion-item class="item" ng-repeat="step in steps">
-        <h2 ng-show="step.title">{{step.title}}</h2>
-        <p ng-show="step.name">
-          <h2 style="width: 30%;">{{step.name}}</h2>  <img src='{{step.image}}' ng-show="step.image"> <h2 ng-show="step.value">{{step.value}}</h2>
-        </p>
+        <button class="button button-full button-positive" ng-click="displayShow(step.id)">
+          {{step.title+" "+step.time}}
+        </button>
+        <ion-list class="list" ng-show="step.show">
+          <div ng-repeat="item in step.items" style="white-space: nowrap;text-overflow:ellipsis;">
+            <div class="item item-input">
+              <span class="wl-position-name">{{item.name}}</span>
+              <span ng-show="item.value" class="wl-position-value">{{item.value}}</span>
+              <img src='{{item.image}}' ng-show="item.image" ng-click="viewStepPicture(item)" class="wl-position-image">
+            </div>
+          </div>
+        </ion-list>
       </ion-item>
     </ion-list>
   </ion-content>
