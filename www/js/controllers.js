@@ -14,7 +14,7 @@ angular.module('starter.controllers', [])
   .controller('DashCtrl', function ($scope) {
   })
 
-  .controller('WlRecordsCtrl', function ($scope, $http, $location, $ionicScrollDelegate, WlRecords, Account) {
+  .controller('WlRecordsCtrl', function ($scope, $http, $location, $ionicScrollDelegate, WlRecords, Account, ionicDatePicker) {
     $scope.wlRecords = WlRecords.getWlRecords();
 
     $scope.shouldShow = function () {
@@ -24,6 +24,39 @@ angular.module('starter.controllers', [])
 
     $scope.scrollTop = function () {
       $ionicScrollDelegate.scrollTop(true);
+    };
+
+    var ipObj1 = {
+      callback: function (val) {  //Mandatory
+        console.log('Return value from the datepicker popup is : ' + val, new Date(val));
+      },
+      disabledDates: [            //Optional
+        // new Date(2016, 2, 16),
+        // new Date(2015, 3, 16),
+        // new Date(2015, 4, 16),
+        // new Date(2015, 5, 16),
+        // new Date('Wednesday, August 12, 2015'),
+        // new Date("08-16-2016"),
+        // new Date(1439676000000)
+      ],
+      setLabel: "设置",
+      todayLabel: "今天",
+      closeLabel: "关闭",
+      weeksList: ["日", "一", "二", "三", "四", "五", "六"],
+      monthsList: ["01月", "02月", "03月", "04月", "05月", "06月", "07月", "08月", "09月", "10月", "11月", "12月"],
+      showTodayButton: false,
+      from: new Date(2012, 1, 1), //Optional
+      to: new Date(2016, 10, 30), //Optional
+      dateFormat: 'yyyy-MM-dd',
+      inputDate: new Date(),      //Optional
+      mondayFirst: true,          //Optional
+      disableWeekdays: [],       //Optional
+      closeOnSelect: false,       //Optional
+      templateType: 'popup'       //Optional
+    };
+
+    $scope.openDatePicker = function () {
+      ionicDatePicker.openDatePicker(ipObj1);
     };
 
     $scope.doRefresh = function () {
@@ -90,9 +123,15 @@ angular.module('starter.controllers', [])
     }
   })
 
-  .controller('WlRecordDetailCtrl', function ($scope, $http, $timeout,$location, $ionicPopup, $ionicLoading, WlRecords, Picture) {
+  .controller('WlRecordDetailCtrl', function ($scope, $http, $timeout, $location, $ionicPopup, $ionicLoading, WlRecords, Picture) {
     var myPopup;
     $scope.wlRecord = WlRecords.getWlRecord();
+
+    /*
+     * if given group is the selected group, deselect it
+     * else, select the given group
+     */
+
 
     $scope.$on('$ionicView.loaded', function () {
       var map = new BMap.Map("mapContainer");    // 创建Map实例
@@ -192,6 +231,13 @@ angular.module('starter.controllers', [])
   .controller('WlRecordPositionCtrl', function ($scope, $http, $location, $ionicLoading, WlRecords, Picture) {
     $scope.wlPosition = WlRecords.getWlPosition();
 
+    $scope.toggleGroup = function (group) {
+      group.show = !group.show;
+    };
+    $scope.isGroupShown = function (group) {
+      return group.show;
+    };
+
     $scope.$on('$ionicView.loaded', function () {
       $ionicLoading.show();
       var promise = $http({
@@ -213,9 +259,7 @@ angular.module('starter.controllers', [])
           var stepInfo = {};
 
           stepInfo.id = i;
-          if(i == 0){
-            stepInfo.show ="show";
-          }
+          stepInfo.show = i == 0;
           stepInfo.title = object.stepname;
           stepInfo.time = WlRecords.formatDate(object.createtime);
 
@@ -252,7 +296,7 @@ angular.module('starter.controllers', [])
         }
 
 
-        $scope.steps = stepInfos;
+        $scope.groups = stepInfos;
       }, function (resp) {
 
       }).finally(function () {
@@ -266,14 +310,14 @@ angular.module('starter.controllers', [])
     };
 
     $scope.displayShow = function (index) {
-      for (var i = 0;i<$scope.steps.length;i++){
-        if (i == index){
-          if ($scope.steps[i].show){
+      for (var i = 0; i < $scope.steps.length; i++) {
+        if (i == index) {
+          if ($scope.steps[i].show) {
             $scope.steps[i].show = null;
-          }else {
+          } else {
             $scope.steps[i].show = "show";
           }
-        }else {
+        } else {
           $scope.steps[i].show = null;
         }
       }

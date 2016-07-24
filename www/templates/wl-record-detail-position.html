@@ -1,21 +1,22 @@
 <ion-view hide-tabs="true" view-title="{{wlPosition.lockpostion}}">
   <ion-content>
     <ion-list>
-      <ion-item class="item" ng-repeat="step in steps">
-        <button class="button button-full button-positive" ng-click="displayShow(step.id)">
-          {{step.title+" "+step.time}}
-        </button>
-        <ion-list class="list" ng-show="step.show">
-          <div ng-repeat="item in step.items" style="white-space: nowrap;text-overflow:ellipsis;">
-            <div class="item item-input">
-              <span class="wl-position-name">{{item.name}}</span>
-              <span ng-show="item.value" class="wl-position-value">{{item.value}}</span>
-              <img src='{{item.image}}' onerror="javascript:this.src='img/image_default.png'"
-                   ng-show="item.image" ng-click="viewStepPicture(item)" class="wl-position-image">
-            </div>
-          </div>
-        </ion-list>
-      </ion-item>
+      <div ng-repeat="group in groups">
+        <ion-item class="item-stable"
+                  ng-click="toggleGroup(group)"
+                  ng-class="{active: isGroupShown(group)}">
+          <i class="icon" ng-class="isGroupShown(group) ? 'ion-minus' : 'ion-plus'"></i>
+          &nbsp; {{group.title+" "+group.time}}
+        </ion-item>
+        <ion-item class="item-accordion"
+                  ng-repeat="item in group.items"
+                  ng-show="isGroupShown(group)">
+          <span class="wl-position-name">{{item.name}}</span>
+          <span ng-show="item.value" class="wl-position-value">{{item.value}}</span>
+          <img src='{{item.image}}' onerror="javascript:this.src='img/image_default.png'"
+               ng-show="item.image" ng-click="viewStepPicture(item)" class="wl-position-image">
+        </ion-item>
+      </div>
     </ion-list>
   </ion-content>
 </ion-view>

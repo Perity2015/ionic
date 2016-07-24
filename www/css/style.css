@@ -1,5 +1,23 @@
 /* Empty. Add your own CSS if you like */
 
+.table {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 20px
+}
+
+.table-bordered {
+  border: 1px solid #ddd
+}
+
+.table-bordered > tbody > tr > td, .table-bordered > tbody > tr > th, .table-bordered > tfoot > tr > td, .table-bordered > tfoot > tr > th, .table-bordered > thead > tr > td, .table-bordered > thead > tr > th {
+  border: 1px solid #ddd
+}
+
+.table-bordered > thead > tr > td, .table-bordered > thead > tr > th {
+  border-bottom-width: 2px
+}
+
 .td_left {
   width: 30%;
   text-align: center;
@@ -21,16 +39,29 @@
   margin-bottom: 10px;
 }
 
-.center-div {
-  height: 100%;
-  width: auto;
-  margin: auto;
-  background-color: #000000;
-  padding-top: 20%;
-  padding-bottom: 20%;
-  text-align: center;
+.centerDiv {
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
   vertical-align: middle;
-  line-height: 100%;
+  text-align: center;
+  width: 80%;
+  padding: 10px;
+  background: #000;
+}
+
+.hiddenDiv {
+  height: 100%;
+  overflow: hidden;
+  display: inline-block;
+  width: 1px;
+  overflow: hidden;
+  margin-left: -1px;
+  zoom: 1;
+  *display: inline;
+  *margin-top: -1px;
+  _margin-top: 0;
+  vertical-align: middle;
 }
 
 .center-picture {
@@ -67,4 +98,18 @@
 .wl-position-image {
   width: 80px;
   height: 80px;
+}
+
+.list .item.item-accordion {
+  line-height: 38px;
+  padding-top: 0;
+  padding-bottom: 0;
+  transition: 0.09s all linear;
+}
+.list .item.item-accordion.ng-hide {
+  line-height: 0px;
+}
+.list .item.item-accordion.ng-hide-add,
+.list .item.item-accordion.ng-hide-remove {
+  display: block !important;
 }

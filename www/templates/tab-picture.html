@@ -1,7 +1,8 @@
-<ion-view hide-tabs="true" view-title="{{picture.title}}" style="background-color: #000000;">
-    <div class="center-div">
-      <div>
-      <img class="center-picture" src="{{picture.imageUrl}}" ng-click="back()" onerror="javascript:this.src='img/image_default.png'">
-        <div>
-    </div>
+<ion-view hide-tabs="true" view-title="{{picture.title}}" style="background-color: #000000;text-align: center">
+  <div class="centerDiv">
+    <img class="center-picture" src="{{picture.imageUrl}}" ng-click="back()"
+         onerror="javascript:this.src='img/image_default.png'">
+    <p style="color: white;font-size: 16px;margin-top: 10px;" ng-show="picture.memo">{{picture.memo}}</p>
+  </div>
+  <div class="hiddenDiv"></div>
 </ion-view>
