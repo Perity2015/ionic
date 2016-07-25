@@ -1,0 +1,16 @@
+<ion-view hide-tabs="true" view-title="筛选">
+  <ion-content>
+    <div class="item item-divider">企业名称: {{ select.company }}</div>
+    <ion-scroll style="max-height: 240px;">
+      <ion-radio ng-repeat="company in companys"
+                 ng-value="company.company"
+                 ng-hide="select.needHide"
+                 ng-model="select.company">
+        {{ company.company }}
+      </ion-radio>
+    </ion-scroll>
+    <div class="item item-divider" ng-click="openDatePicker(1)">起始日期: {{select.start}}</div>
+    <div class="item item-divider" ng-click="openDatePicker(2)">结束日期: {{select.end}}</div>
+  </ion-content>
+
+</ion-view>

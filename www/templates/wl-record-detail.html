@@ -35,11 +35,11 @@
     <div class="list card" ng-show="wlRecord.beginaddr||wlRecord.beginlat">
       <div class="item tabs tabs-secondary tabs-icon-left">
         <div class="tab-item" ng-click="getWlRecordPositions()"><i class="icon ion-android-lock"></i>施封位置</div>
-        <div class="tab-item" ng-click="viewRecordPicture(wlRecord)" ng-show="wlRecord.overpaperpic"><i
+        <div class="tab-item" ng-click="viewRecordPicture(wlRecord)" ng-show="wlRecord.overpaperpic" ><i
           class="icon ion-image"></i>运单照片
         </div>
       </div>
     </div>
-    <div id="mapContainer" class="mapContainer"></div>
+    <div id="mapContainer" class="mapContainer" ng-show="needShowMap"></div>
   </ion-content>
 </ion-view>

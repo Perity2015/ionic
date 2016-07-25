@@ -11,7 +11,8 @@
 }
 
 .table-bordered > tbody > tr > td, .table-bordered > tbody > tr > th, .table-bordered > tfoot > tr > td, .table-bordered > tfoot > tr > th, .table-bordered > thead > tr > td, .table-bordered > thead > tr > th {
-  border: 1px solid #ddd
+  border: 1px solid #ddd;
+  padding: 2px;
 }
 
 .table-bordered > thead > tr > td, .table-bordered > thead > tr > th {
@@ -106,10 +107,20 @@
   padding-bottom: 0;
   transition: 0.09s all linear;
 }
+
 .list .item.item-accordion.ng-hide {
   line-height: 0px;
 }
+
 .list .item.item-accordion.ng-hide-add,
 .list .item.item-accordion.ng-hide-remove {
   display: block !important;
+}
+
+.action-img {
+  width: 36px;
+  height: 36px;
+  background-color: black;
+  border-radius: 50%;
+  padding: 5px;
 }

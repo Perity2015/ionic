@@ -14,7 +14,7 @@ angular.module('starter.controllers', [])
   .controller('DashCtrl', function ($scope) {
   })
 
-  .controller('WlRecordsCtrl', function ($scope, $http, $location, $ionicScrollDelegate, WlRecords, Account, ionicDatePicker) {
+  .controller('WlRecordsCtrl', function ($scope, $http, $location, $ionicScrollDelegate, $ionicLoading,WlRecords, Account, SelectCompanys) {
     $scope.wlRecords = WlRecords.getWlRecords();
 
     $scope.shouldShow = function () {
@@ -26,48 +26,27 @@ angular.module('starter.controllers', [])
       $ionicScrollDelegate.scrollTop(true);
     };
 
-    var ipObj1 = {
-      callback: function (val) {  //Mandatory
-        console.log('Return value from the datepicker popup is : ' + val, new Date(val));
-      },
-      disabledDates: [            //Optional
-        // new Date(2016, 2, 16),
-        // new Date(2015, 3, 16),
-        // new Date(2015, 4, 16),
-        // new Date(2015, 5, 16),
-        // new Date('Wednesday, August 12, 2015'),
-        // new Date("08-16-2016"),
-        // new Date(1439676000000)
-      ],
-      setLabel: "设置",
-      todayLabel: "今天",
-      closeLabel: "关闭",
-      weeksList: ["日", "一", "二", "三", "四", "五", "六"],
-      monthsList: ["01月", "02月", "03月", "04月", "05月", "06月", "07月", "08月", "09月", "10月", "11月", "12月"],
-      showTodayButton: false,
-      from: new Date(2012, 1, 1), //Optional
-      to: new Date(2016, 10, 30), //Optional
-      dateFormat: 'yyyy-MM-dd',
-      inputDate: new Date(),      //Optional
-      mondayFirst: true,          //Optional
-      disableWeekdays: [],       //Optional
-      closeOnSelect: false,       //Optional
-      templateType: 'popup'       //Optional
-    };
-
-    $scope.openDatePicker = function () {
-      ionicDatePicker.openDatePicker(ipObj1);
-    };
+    $scope.goToSelect = function () {
+      $location.path('/tab/records/wlselect');
+    }
 
     $scope.doRefresh = function () {
+      $ionicLoading.show();
       var promise = $http({
         method: 'POST',
         url: '/OnceRfid.BaseOnceRfid/GetLinkGoodRecord_RawJson.ajax',
-        data: {page: '1', rows: '10'}
+        data: {
+          page: '1',
+          rows: '10',
+          companyid: select.companyid,
+          starttime: select.start,
+          endtime: select.end
+        }
       });
       promise.then(function (resp) {
         console.info(resp.data.rows);
         if (resp.headers("sessionStatus") == "clear") {
+          Account.setLoginAgain(true);
           $location.path('/tab/loginAgain');
           return;
         }
@@ -80,6 +59,7 @@ angular.module('starter.controllers', [])
       }).finally(function () {
         // 停止广播ion-refresher
         $scope.$broadcast('scroll.refreshComplete');
+        $ionicLoading.hide();
       })
     };
 
@@ -87,12 +67,19 @@ angular.module('starter.controllers', [])
       var promise = $http({
         method: 'POST',
         url: '/OnceRfid.BaseOnceRfid/GetLinkGoodRecord_RawJson.ajax',
-        data: {page: WlRecords.length() + 1, rows: '10'}
+        data: {
+          page: WlRecords.length() + 1,
+          rows: '10',
+          companyid: select.companyid,
+          starttime: select.start,
+          endtime: select.end
+        }
       });
 
       promise.then(function (resp) {
         // console.info(resp.data.rows);
         if (resp.headers("sessionStatus") == "clear") {
+          Account.setLoginAgain(true);
           $location.path('/tab/loginAgain');
           return;
         }
@@ -106,8 +93,36 @@ angular.module('starter.controllers', [])
       })
     };
 
-    $scope.$on('$ionicView.beforeEnter', function () {
-      if (Account.getFirstEnter()) {
+    $scope.$on('$ionicView.loaded', function () {
+      var s = {};
+      SelectCompanys.setSelect(s);
+    });
+
+    $scope.$on('$ionicView.beforeLeave',function () {
+      $ionicLoading.hide();
+      select.needUpdate = false;
+      SelectCompanys.setSelect(select);
+    });
+
+    var select;
+    $scope.$on('$ionicView.afterEnter', function () {
+      select = SelectCompanys.getSelect();
+      if (!select.companyid) {
+        select.companyid = "";
+      }
+      if (!select.start) {
+        select.start = "";
+      }
+      if (!select.end) {
+        select.end = "";
+      }
+      SelectCompanys.setSelect(select);
+      if (select.companyid != "" || select.start != "" || select.end != "") {
+        if (select.needUpdate){
+          Account.setFirstEnter(false);
+          $scope.doRefresh();
+        }
+      } else if (Account.getFirstEnter()) {
         Account.setFirstEnter(false);
         $scope.doRefresh();
       }
@@ -123,27 +138,92 @@ angular.module('starter.controllers', [])
     }
   })
 
-  .controller('WlRecordDetailCtrl', function ($scope, $http, $timeout, $location, $ionicPopup, $ionicLoading, WlRecords, Picture) {
+  .controller('WlSelectCtrl', function ($scope, $location, $http, $filter, $ionicLoading, ionicDatePicker, SelectCompanys) {
+    $scope.$on('$ionicView.beforeEnter', function () {
+      $ionicLoading.show();
+      var promise = $http({
+        method: 'POST',
+        url: '/CoreSYS.SYS/GetSelectCompanyFromClass_RawJson.ajax',
+        data: {fullclassnames: SelectCompanys.getFullClassNames()}
+      });
+      promise.then(function (resp) {
+        if (resp.headers("sessionStatus") == "clear") {
+          $location.path('/tab/loginAgain');
+          return;
+        }
+        SelectCompanys.setCompanys(resp.data);
+        if (resp.data.length == 1) {
+          $scope.select.company = resp.data[0].company;
+          $scope.select.needHide = true;
+        }
+        $scope.companys = SelectCompanys.getCompanys();
+
+      }, function (resp) {
+
+      }).finally(function () {
+        $ionicLoading.hide();
+      })
+    });
+
+    $scope.$on('$ionicView.beforeLeave', function () {
+      $ionicLoading.hide();
+      $scope.select.needUpdate = true;
+      $scope.select.companyid = SelectCompanys.getCompanyId($scope.select.company);
+      SelectCompanys.setSelect($scope.select);
+    })
+
+    $scope.select = SelectCompanys.getSelect();
+
+    var index = 0;
+    var datePicker = {
+      callback: function (val) {  //Mandatory
+        console.log('Return value from the datepicker popup is : ' + val, new Date(val));
+        if (index == 1) {
+          $scope.select.start = $filter("date")(val, "yyyy-MM-dd");
+        } else if (index == 2) {
+          $scope.select.end = $filter("date")(val, "yyyy-MM-dd");
+        }
+        SelectCompanys.setSelect($scope.select);
+      },
+      disabledDates: [            //Optional
+      ],
+      setLabel: "设置",
+      todayLabel: "今天",
+      closeLabel: "关闭",
+      weeksList: ["日", "一", "二", "三", "四", "五", "六"],
+      monthsList: ["01月", "02月", "03月", "04月", "05月", "06月", "07月", "08月", "09月", "10月", "11月", "12月"],
+      showTodayButton: false,
+      from: new Date(2000, 1, 1), //Optional
+      to: new Date(2099, 12, 31), //Optional
+      dateFormat: 'yyyy-MM-dd',
+      inputDate: new Date(),      //Optional
+      mondayFirst: true,          //Optional
+      disableWeekdays: [],       //Optional
+      closeOnSelect: false,       //Optional
+      templateType: 'popup'       //Optional
+    };
+    $scope.openDatePicker = function (num) {
+      index = num;
+      ionicDatePicker.openDatePicker(datePicker);
+    };
+  })
+
+  .controller('WlRecordDetailCtrl', function ($scope, $http, $timeout, $location, $ionicPopup, $ionicLoading, WlRecords, Picture,Account) {
     var myPopup;
     $scope.wlRecord = WlRecords.getWlRecord();
 
-    /*
-     * if given group is the selected group, deselect it
-     * else, select the given group
-     */
-
-
     $scope.$on('$ionicView.loaded', function () {
+      if ($scope.wlRecord.beginlat == null && $scope.wlRecord.endlat == null) {
+        // map.centerAndZoom(new BMap.Point(116.404, 39.915), 11);  // 初始化地图,设置中心点坐标和地图级别
+        // map.setCurrentCity("北京");          // 设置地图显示的城市 此项是必须设置的
+        return;
+      }
       var map = new BMap.Map("mapContainer");    // 创建Map实例
       map.disableScrollWheelZoom();     //开启鼠标滚轮缩放
       map.disableDoubleClickZoom();
       map.disablePinchToZoom();
       map.disableDragging();
-      if ($scope.wlRecord.beginlat == null && $scope.wlRecord.endlat == null) {
-        map.centerAndZoom(new BMap.Point(116.404, 39.915), 11);  // 初始化地图,设置中心点坐标和地图级别
-        map.setCurrentCity("北京");          // 设置地图显示的城市 此项是必须设置的
-        return;
-      }
+      $scope.needShowMap = true;
       var points = new Array();
       if ($scope.wlRecord.beginlat != null) {
         var point = new BMap.Point($scope.wlRecord.beginlng, $scope.wlRecord.beginlat);
@@ -179,6 +259,7 @@ angular.module('starter.controllers', [])
       if (myPopup != null) {
         myPopup.close();
       }
+      $ionicLoading.hide();
     });
 
     $scope.viewPosition = function (wlPosition) {
@@ -196,6 +277,7 @@ angular.module('starter.controllers', [])
       });
       promise.then(function (resp) {
         if (resp.headers("sessionStatus") == "clear") {
+          Account.setLoginAgain(true);
           $location.path('/tab/loginAgain');
           return;
         }
@@ -228,7 +310,7 @@ angular.module('starter.controllers', [])
     }
   })
 
-  .controller('WlRecordPositionCtrl', function ($scope, $http, $location, $ionicLoading, WlRecords, Picture) {
+  .controller('WlRecordPositionCtrl', function ($scope, $http, $location, $ionicLoading, WlRecords, Picture,Account) {
     $scope.wlPosition = WlRecords.getWlPosition();
 
     $scope.toggleGroup = function (group) {
@@ -248,6 +330,7 @@ angular.module('starter.controllers', [])
 
       promise.then(function (resp) {
         if (resp.headers("sessionStatus") == "clear") {
+          Account.setLoginAgain(true);
           $location.path('/tab/loginAgain');
           return;
         }
@@ -332,14 +415,18 @@ angular.module('starter.controllers', [])
     }
   })
 
-  .controller('UserCtrl', function ($scope, $ionicHistory, $ionicLoading, $timeout, $location, $ionicPopup, $http, Account) {
+  .controller('UserCtrl', function ($scope, $ionicHistory, $ionicLoading, $timeout, $location, $ionicPopup, $http, Account,ionicToast) {
     $scope.userInfo = Account.getUserInfo();
 
     $scope.$on('$ionicView.beforeEnter', function () {
       $scope.userInfo = Account.getUserInfo();
+      if (Account.getLoginAgain()){
+        ionicToast.show('请重新登录.', 'middle', false, 2000);
+      }
     });
 
     $scope.quitLogin = function () {
+      Account.setLoginAgain(false);
       $location.path("/tab/login");
     };
 

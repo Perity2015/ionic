@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'ionic-datepicker', 'starter.controllers', 'starter.services'])
+angular.module('starter', ['ionic', 'ionic-datepicker', 'ionic-toast','starter.controllers', 'starter.services'])
 
   .run(function ($ionicPlatform) {
     $ionicPlatform.ready(function () {
@@ -133,6 +133,16 @@ angular.module('starter', ['ionic', 'ionic-datepicker', 'starter.controllers', '
           'tab-records': {
             templateUrl: 'templates/wl-records.html',
             controller: 'WlRecordsCtrl'
+          }
+        }
+      })
+
+      .state('tab.records-wlselect',{
+        url: '/records/wlselect',
+        views: {
+          'tab-records': {
+            templateUrl: 'templates/wl-select.html',
+            controller: 'WlSelectCtrl'
           }
         }
       })

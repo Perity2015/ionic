@@ -3,7 +3,8 @@
     <ion-refresher pulling-text="下拉刷新……" pulling-icon="ion-load-a"
                    on-refresh="doRefresh()"></ion-refresher>
     <ion-list>
-      <ion-item class="item item-avatar item-icon-right" ng-repeat="wlRecord in wlRecords" type="item-text-wrap" ng-click="viewDetail(wlRecord)">
+      <ion-item class="item item-avatar item-icon-right" ng-repeat="wlRecord in wlRecords" type="item-text-wrap"
+                ng-click="viewDetail(wlRecord)">
         <img src='img/record_item_logo.jpg'>
         <h2>{{wlRecord.linkgoodname}}</h2>
         <p>{{wlRecord.begintime}}</p>
@@ -13,8 +14,13 @@
     <ion-infinite-scroll distance="1%" on-infinite="LoadMore()"
                          ng-if="canLoadMore()"></ion-infinite-scroll>
   </ion-content>
-  <div id="scroll" ng-click="openDatePicker()"
-       style="position: fixed;bottom:100px;right:12px;z-index: 500;overflow: hidden;text-align: center;vertical-align: middle;padding: 5px">
-    <img src="img/ic_record_top.png" style="width: 36px;height: 36px">
+  <div id="scroll"
+       style="position: fixed;bottom:50px;right:12px;z-index: 500;overflow: hidden;text-align: center;vertical-align: middle;padding: 5px;width: 46px;">
+    <img src="img/ic_action_top.png"
+         style="width: 36px;height: 36px;background-color: #007aff;border-radius: 50%;padding: 5px;"
+         ng-click="scrollTop()">
+    <img src="img/ic_action_select.png"
+         style="width: 36px;height: 36px;background-color: #007aff;border-radius: 50%;padding: 5px;"
+        ng-click="goToSelect()">
   </div>
 </ion-view>

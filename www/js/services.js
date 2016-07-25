@@ -14,7 +14,6 @@ angular.module('starter.services', [])
     };
   })
 
-
   //本地存储数据
   .factory('locals', ['$window', function ($window) {
     return {
@@ -125,19 +124,62 @@ angular.module('starter.services', [])
       setWlPosition: function (item) {
         wlPosition = item;
       },
-      formatDate:function (date) {
+      formatDate: function (date) {
         return $filter("jsonDate")(date, "yyyy-MM-dd HH:mm:ss");
       }
     }
   })
 
+  .factory('SelectCompanys', function () {
+    var companys = [];
+    var fullclassnames = "OnceRfid.BaseOnceRfid";
+    var select = {};
+
+    return {
+      getCompanys: function () {
+        return companys;
+      },
+      setCompanys: function (items) {
+        companys = [];
+        for (var i = 0; i < items.length; i++) {
+          companys.push(items[i]);
+        }
+      },
+      getFullClassNames: function () {
+        return fullclassnames;
+      },
+      setFullClassNames: function (className) {
+        fullclassnames = className;
+      },
+      getCompanyId: function (name) {
+        if (name == null){
+          return "";
+        }
+        for (var i = 0; i < companys.length; i++) {
+          if (companys[i].company == name) {
+            return companys[i].companyid;
+          }
+        }
+        return "";
+      },
+      getSelect:function () {
+        return select;
+      },
+      setSelect:function (s) {
+        select = s;
+      }
+    }
+
+
+  })
+
   .factory('Picture', function () {
     var picture = {};
     return {
-      getPicture:function () {
-        return  picture;
+      getPicture: function () {
+        return picture;
       },
-      setPicture: function (imageUrl, memo,title) {
+      setPicture: function (imageUrl, memo, title) {
         picture.imageUrl = imageUrl;
         picture.memo = memo;
         picture.title = title;
@@ -149,6 +191,8 @@ angular.module('starter.services', [])
     var userInfo;
     //第一次进入时刷新
     var firstEnter = true;
+    var loginAgain = true;
+
     return {
       getUserInfo: function () {
         userInfo = locals.getObject("userInfo");
@@ -163,6 +207,14 @@ angular.module('starter.services', [])
       },
       setFirstEnter: function (flag) {
         firstEnter = flag;
+      },
+      setLoginAgain:function (flag) {
+        loginAgain = flag;
+      },
+      getLoginAgain:function () {
+        return loginAgain;
       }
     };
   });
+
+
