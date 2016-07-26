@@ -137,12 +137,12 @@ angular.module('starter', ['ionic', 'ionic-datepicker', 'ionic-toast','starter.c
         }
       })
 
-      .state('tab.records-wlselect',{
-        url: '/records/wlselect',
+      .state('tab.select',{
+        url: '/select',
         views: {
           'tab-records': {
-            templateUrl: 'templates/wl-select.html',
-            controller: 'WlSelectCtrl'
+            templateUrl: 'templates/tab-select.html',
+            controller: 'SelectCtrl'
           }
         }
       })
@@ -151,8 +151,28 @@ angular.module('starter', ['ionic', 'ionic-datepicker', 'ionic-toast','starter.c
         url: '/records/dzs',
         views: {
           'tab-records': {
-            templateUrl: 'templates/wl-records.html',
-            controller: 'WlRecordsCtrl'
+            templateUrl: 'templates/dzs-records.html',
+            controller: 'DzsRecordsCtrl'
+          }
+        }
+      })
+
+      .state('tab.records-dzs-detail', {
+        url: '/records/dzs/detail',
+        views: {
+          'tab-records': {
+            templateUrl: 'templates/dzs-record-detail.html',
+            controller: 'DzsRecordDetailCtrl'
+          }
+        }
+      })
+
+      .state('tab.records-dzs-detail-position', {
+        url: '/records/dzs/detail/position',
+        views: {
+          'tab-records': {
+            templateUrl: 'templates/wl-record-detail-position.html',
+            controller: 'WlRecordPositionCtrl'
           }
         }
       })

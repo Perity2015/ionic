@@ -1,13 +1,13 @@
-<ion-view hide-tabs="true" view-title="物流">
+<ion-view hide-tabs="true" view-title="电子锁">
   <ion-content>
     <ion-refresher pulling-text="下拉刷新……" pulling-icon="ion-load-a"
                    on-refresh="doRefresh()"></ion-refresher>
     <ion-list>
-      <ion-item class="item item-avatar item-icon-right" ng-repeat="wlRecord in wlRecords" type="item-text-wrap"
-                ng-click="viewDetail(wlRecord)">
-        <img src='img/record_item_wl.png'>
-        <h2>{{wlRecord.linkgoodname}}</h2>
-        <p>{{wlRecord.begintime}}</p>
+      <ion-item class="item item-avatar item-icon-right" ng-repeat="dzsRecord in dzsRecords" type="item-text-wrap"
+                ng-click="viewDetail(dzsRecord)">
+        <img src='img/record_item_dzs.png'>
+        <h2>{{dzsRecord.objectname}}</h2>
+        <p>{{dzsRecord.begintime}}</p>
         <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>
     </ion-list>

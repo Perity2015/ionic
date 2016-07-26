@@ -22,7 +22,7 @@ angular.module('starter.services', [])
         $window.localStorage[key] = value;
       },
       //读取单个属性
-      getWlRecord: function (key, defaultValue) {
+      getRecord: function (key, defaultValue) {
         return $window.localStorage[key] || defaultValue;
       },
       //存储对象，以JSON格式存储
@@ -40,12 +40,12 @@ angular.module('starter.services', [])
   .factory('Cards', function () {
     var cards = [{
       related: 'wl',
-      img: "img/user.png",
+      img: "img/record_item_wl.png",
       title: "物流",
       memo: "查询"
     }, {
       related: 'dzs',
-      img: "img/user.png",
+      img: "img/record_item_dzs.png",
       title: "电子锁",
       memo: "查询"
     }, {
@@ -56,7 +56,7 @@ angular.module('starter.services', [])
     }];
 
     return {
-      getWlRecords: function () {
+      getRecords: function () {
         return cards;
       }
     }
@@ -73,10 +73,10 @@ angular.module('starter.services', [])
     var total = 0;
 
     return {
-      getWlRecords: function () {
+      getRecords: function () {
         return wlRecords;
       },
-      setWlRecords: function (items) {
+      setRecords: function (items) {
         wlRecords = [];
         var i;
         for (i in items) {
@@ -85,13 +85,13 @@ angular.module('starter.services', [])
           wlRecords.push(items[i]);
         }
       },
-      setWlRecord: function (item) {
+      setRecord: function (item) {
         wlRecord = item;
       },
-      getWlRecord: function () {
+      getRecord: function () {
         return wlRecord;
       },
-      addWlRecords: function (items) {
+      addRecords: function (items) {
         var i;
         for (i in items) {
           items[i].begintime = $filter("jsonDate")(items[i].begintime, "yyyy-MM-dd HH:mm:ss");
@@ -108,21 +108,89 @@ angular.module('starter.services', [])
       length: function () {
         return wlRecords.length / 10;
       },
-      getWlPositions: function () {
+      getPositions: function () {
         return wlPositions;
       },
-      setWlPositions: function (items) {
+      setPositions: function (items) {
         wlPositions = [];
         var i;
         for (i in items) {
           wlPositions.push(items[i]);
         }
       },
-      getWlPosition: function () {
+      getPosition: function () {
         return wlPosition;
       },
-      setWlPosition: function (item) {
+      setPosition: function (item) {
         wlPosition = item;
+      },
+      formatDate: function (date) {
+        return $filter("jsonDate")(date, "yyyy-MM-dd HH:mm:ss");
+      }
+    }
+  })
+
+  .factory('DzsRecords',function ($filter) {
+    //电子锁运输记录
+    var dzsRecord;
+    //运输记录位置
+    var dzsPosition;
+
+    var dzsRecords = [];
+    var dzsPositions = [];
+    var total = 0;
+
+    return {
+      getRecords: function () {
+        return dzsRecords;
+      },
+      setRecords: function (items) {
+        dzsRecords = [];
+        var i;
+        for (i in items) {
+          items[i].begintime = $filter("jsonDate")(items[i].begintime, "yyyy-MM-dd HH:mm:ss");
+          items[i].endtime = $filter("jsonDate")(items[i].endtime, "yyyy-MM-dd HH:mm:ss");
+          dzsRecords.push(items[i]);
+        }
+      },
+      setRecord: function (item) {
+        dzsRecord = item;
+      },
+      getRecord: function () {
+        return dzsRecord;
+      },
+      addRecords: function (items) {
+        var i;
+        for (i in items) {
+          items[i].begintime = $filter("jsonDate")(items[i].begintime, "yyyy-MM-dd HH:mm:ss");
+          items[i].endtime = $filter("jsonDate")(items[i].endtime, "yyyy-MM-dd HH:mm:ss");
+          dzsRecords.push(items[i]);
+        }
+      },
+      setTotal: function (tempTotal) {
+        total = tempTotal;
+      },
+      canLoadMore: function () {
+        return total > dzsRecords.length;
+      },
+      length: function () {
+        return dzsRecords.length / 10;
+      },
+      getPositions: function () {
+        return dzsPositions;
+      },
+      setPositions: function (items) {
+        dzsPositions = [];
+        var i;
+        for (i in items) {
+          dzsPositions.push(items[i]);
+        }
+      },
+      getPosition: function () {
+        return dzsPosition;
+      },
+      setPosition: function (item) {
+        dzsPosition = item;
       },
       formatDate: function (date) {
         return $filter("jsonDate")(date, "yyyy-MM-dd HH:mm:ss");
@@ -170,7 +238,6 @@ angular.module('starter.services', [])
       }
     }
 
-
   })
 
   .factory('Picture', function () {
@@ -191,7 +258,7 @@ angular.module('starter.services', [])
     var userInfo;
     //第一次进入时刷新
     var firstEnter = true;
-    var loginAgain = true;
+    var loginAgain = false;
 
     return {
       getUserInfo: function () {

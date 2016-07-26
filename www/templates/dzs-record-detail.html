@@ -1,0 +1,41 @@
+<ion-view hide-tabs="true" view-title="{{dzsRecord.objectname}}">
+  <ion-content class="padding">
+    <div>
+      <table class="table table-bordered">
+        <tr>
+          <th class="td_left">起始时间</th>
+          <td class="td_right">{{dzsRecord.begintime}}</td>
+        </tr>
+        <tr ng-show="dzsRecord.beginaddr">
+          <th class="td_left">起始地址</th>
+          <td class="td_right">{{dzsRecord.beginaddr}}</td>
+        </tr>
+        <tr>
+          <th class="td_left">起始人员</th>
+          <td class="td_right">{{dzsRecord.beginrealname}}</td>
+        </tr>
+        <tr ng-show="dzsRecord.endrealname">
+          <th class="td_left">结束时间</th>
+          <td class="td_right">{{dzsRecord.endtime}}</td>
+        </tr>
+        <tr ng-show="dzsRecord.endrealname">
+          <th class="td_left">结束地址</th>
+          <td class="td_right">{{dzsRecord.endaddr}}</td>
+        </tr>
+        <tr ng-show="dzsRecord.endrealname">
+          <th class="td_left">结束人员</th>
+          <td class="td_right">{{dzsRecord.endrealname}}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="list card" ng-show="dzsRecord.beginaddr||dzsRecord.beginlat">
+      <div class="item tabs tabs-secondary tabs-icon-left">
+        <div class="tab-item" ng-click="getDzsRecordPositions()"><i class="icon ion-android-lock"></i>上锁位置</div>
+        <div class="tab-item" ng-click="viewRecordPicture(dzsRecord)" ng-show="dzsRecord.reportpic" ><i
+          class="icon ion-image"></i>运单照片
+        </div>
+      </div>
+    </div>
+    <div id="mapContainer" class="mapContainer" ng-show="needShowMap"></div>
+  </ion-content>
+</ion-view>
