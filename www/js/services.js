@@ -48,11 +48,6 @@ angular.module('starter.services', [])
       img: "img/record_item_dzs.png",
       title: "电子锁",
       memo: "查询"
-    }, {
-      related: 'll',
-      img: "img/user.png",
-      title: "冷链",
-      memo: "查询"
     }];
 
     return {
@@ -140,6 +135,8 @@ angular.module('starter.services', [])
     var dzsPositions = [];
     var total = 0;
 
+    var mapData = [];
+
     return {
       getRecords: function () {
         return dzsRecords;
@@ -191,6 +188,12 @@ angular.module('starter.services', [])
       },
       setPosition: function (item) {
         dzsPosition = item;
+      },
+      getMapData:function () {
+        return mapData;
+      },
+      setMapData:function (items) {
+        mapData = items;
       },
       formatDate: function (date) {
         return $filter("jsonDate")(date, "yyyy-MM-dd HH:mm:ss");

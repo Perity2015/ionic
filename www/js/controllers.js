@@ -98,6 +98,7 @@ angular.module('starter.controllers', [])
     };
 
     $scope.$on('$ionicView.loaded', function () {
+      Account.setFirstEnter(true);
       var s = {};
       SelectCompanys.setSelect(s);
     });
@@ -270,7 +271,7 @@ angular.module('starter.controllers', [])
           return;
         }
         var m_ReturnOBJ = resp.data.m_ReturnOBJ;
-        var stepInfos = [m_ReturnOBJ.length];
+        var stepInfos = [];
 
         for (var i = 0; i < m_ReturnOBJ.length; i++) {
           var object = m_ReturnOBJ[i];
@@ -310,7 +311,7 @@ angular.module('starter.controllers', [])
             items.push(item);
           }
           stepInfo.items = items;
-          stepInfos[i] = stepInfo;
+          stepInfos.push(stepInfo);
         }
 
 
@@ -425,6 +426,7 @@ angular.module('starter.controllers', [])
     };
 
     $scope.$on('$ionicView.loaded', function () {
+      Account.setFirstEnter(true);
       var s = {};
       SelectCompanys.setSelect(s);
     });
@@ -470,7 +472,7 @@ angular.module('starter.controllers', [])
     }
   })
 
-  .controller('DzsRecordDetailCtrl', function ($scope, $http, $timeout, $location, $ionicPopup, $ionicLoading, DzsRecords, Picture, Account) {
+  .controller('DzsRecordDetailCtrl', function ($scope, $http, $timeout, $location, $ionicPopup, $ionicLoading, DzsRecords, Picture, Account, ionicToast) {
     var myPopup;
     $scope.dzsRecord = DzsRecords.getRecord();
 
@@ -487,11 +489,11 @@ angular.module('starter.controllers', [])
       map.disableDragging();
       $scope.needShowMap = true;
       var points = new Array();
-      if ($scope.dzsRecord.beginlat != null) {
+      if ($scope.dzsRecord.beginlat != "") {
         var point = new BMap.Point($scope.dzsRecord.beginlng, $scope.dzsRecord.beginlat);
         points.push(point);
       }
-      if ($scope.dzsRecord.endlat != null) {
+      if ($scope.dzsRecord.endlat != "") {
         var point = new BMap.Point($scope.dzsRecord.endlng, $scope.dzsRecord.endlat);
         points.push(point);
       }
@@ -534,7 +536,7 @@ angular.module('starter.controllers', [])
       $ionicLoading.show();
       var promise = $http({
         method: 'POST',
-        url: '/NFCLock.BaseNFCLock/recordPostionList_RawJson.ajax?',
+        url: '/NFCLock.BaseNFCLock/recordPostionList_RawJson.ajax',
         data: {recordid: $scope.dzsRecord.recordid}
       });
       promise.then(function (resp) {
@@ -544,14 +546,15 @@ angular.module('starter.controllers', [])
           return;
         }
         var returnObj = resp.data;
-        if (!returnObj.bOK) {
+        if (returnObj.total == 0) {
+          ionicToast.show('没有上锁位置.', 'middle', false, 2000);
           return;
         }
         DzsRecords.setPositions(returnObj.rows);
         $scope.dzsPositions = DzsRecords.getPositions();
         myPopup = $ionicPopup.show({
           template: '<div class="list">  <ion-item class="item" ng-repeat="dzsPosition in dzsPositions" type="item-text-wrap"  ng-click="viewPosition(dzsPosition)">{{dzsPosition.nfclock_objectpostionname}}</ion-item></div>',
-          title: '请选择位置',
+          title: '请选择上锁位置',
           scope: $scope
         });
         $timeout(function () {
@@ -565,10 +568,241 @@ angular.module('starter.controllers', [])
       })
     };
 
+    $scope.getDzsRecordMapPositions = function () {
+      $ionicLoading.show();
+      var promise = $http({
+        method: 'POST',
+        url: '/NFCLock.BaseNFCLock/getRecords_RawJson.ajax',
+        data: {recordids: $scope.dzsRecord.recordid}
+      });
+      promise.then(function (resp) {
+        if (resp.headers("sessionStatus") == "clear") {
+          Account.setLoginAgain(true);
+          $location.path('/tab/loginAgain');
+          return;
+        }
+        var data = resp.data;
+        if (data.mapData[0].length == 0) {
+          ionicToast.show('没有地图信息.', 'middle', false, 2000);
+          return;
+        }
+        DzsRecords.setMapData(data.mapData[0]);
+        $location.path('/tab/records/dzs/detail/map');
+
+
+      }, function (resp) {
+
+      }).finally(function () {
+        $ionicLoading.hide();
+      })
+    };
+
     $scope.viewRecordPicture = function (dzsRecord) {
       Picture.setPicture(dzsRecord.overpaperpic, dzsRecord.papermemo, "运单");
       $location.path('/tab/pictureView');
     }
+  })
+
+  .controller('DzsRecordMapCtrl', function ($scope, $http, $timeout, DzsRecords) {
+    var map;
+    var lockIcon = new BMap.Icon("img/ic_map_marker_lock.png", new BMap.Size(27, 36));
+    var loopIcon = new BMap.Icon("img/ic_map_marker_loop.png", new BMap.Size(27, 36));
+    var openIcon = new BMap.Icon("img/ic_map_marker_open.png", new BMap.Size(27, 36));
+
+    $scope.$on('$ionicView.loaded', function () {
+      map = new BMap.Map("dzsMapContainer");    // 创建Map实例
+      map.disableScrollWheelZoom();     //开启鼠标滚轮缩放
+      map.disableDoubleClickZoom();
+      map.disablePinchToZoom();
+      map.disableDragging();
+      map.centerAndZoom(new BMap.Point(116.404, 39.915), 11);  // 初始化地图,设置中心点坐标和地图级别
+      map.setCurrentCity("北京");
+    });
+
+    $scope.$on('$ionicView.afterEnter', function () {
+      var mapData = DzsRecords.getMapData();
+      var points = [];
+      for (var i = 0; i < mapData.length; i++) {
+
+        points.push(new BMap.Point(mapData[i].lng, mapData[i].lat));
+      }
+
+      //坐标转换完之后的回调函数
+      translateCallback = function (data) {
+        if (data.status === 0) {
+          var newPoints = data.points;
+          for (var i = 0; i < newPoints.length; i++) {
+            var img;
+            var status = mapData[i].status;
+            switch (status) {
+              case "lock":
+                img = lockIcon;
+                break
+              case "loopTrue":
+              case "loopFalse":
+                img = loopIcon;
+                break
+              case "openTrue":
+              case "openFalse":
+                img = openIcon;
+                break
+            }
+            var marker = new BMap.Marker(newPoints[i], {icon: img, offset: new BMap.Size(0, -18)});
+            map.addOverlay(marker);
+            marker.addEventListener("click", getInfo.bind(null, i));
+          }
+          var polyline = new BMap.Polyline(newPoints, {strokeColor: "blue", strokeWeight: 2, strokeOpacity: 0.5});
+          map.addOverlay(polyline);
+          map.setViewport(newPoints);
+        }
+      }
+      setTimeout(function () {
+        var convertor = new BMap.Convertor();
+        convertor.translate(points, 1, 5, translateCallback)
+      }, 1000);
+
+      function getInfo(i, e) {
+        var status = mapData[i].status;
+        var title;
+        var content;
+        switch (status) {
+          case "lock":
+            title = "操作" + (i + 1) + " 上锁"
+            content = "上锁人员：" + mapData[i].acount + "<br>" + "上锁时间：" + mapData[i].time + "<br>" + "上锁地址：" + mapData[i].addr;
+            break
+          case "loopTrue":
+          case "loopFalse":
+            title = "操作" + (i + 1) + " 巡检"
+            content = "巡检人员：" + mapData[i].acount + "<br>" + "巡检时间：" + mapData[i].time + "<br>" + "巡检地址：" + mapData[i].addr;
+            break
+          case "openTrue":
+          case "openFalse":
+            title = "操作" + (i + 1) + " 开锁"
+            content = "开锁人员：" + mapData[i].acount + "<br>" + "开锁时间：" + mapData[i].time + "<br>" + "开锁地址：" + mapData[i].addr;
+            break
+        }
+        var opts = {
+          title: title, // 信息窗口标题
+          enableMessage: true,//设置允许信息窗发送短息
+          message: "请查看信息",
+          offset: new BMap.Size(0, -18)
+        }
+        var p = e.target;
+        var point = new BMap.Point(p.getPosition().lng, p.getPosition().lat);
+        var infoWindow = new BMap.InfoWindow(content, opts);  // 创建信息窗口对象
+        map.openInfoWindow(infoWindow, point); //开启信息窗
+      }
+    });
+  })
+
+  .controller('DzsRecordPositionCtrl', function ($scope, $http, $location, $ionicLoading, DzsRecords, Picture, Account) {
+    $scope.dzsPosition = DzsRecords.getPosition();
+
+    $scope.toggleGroup = function (group) {
+      group.show = !group.show;
+    };
+    $scope.isGroupShown = function (group) {
+      return group.show;
+    };
+
+    $scope.$on('$ionicView.loaded', function () {
+      $ionicLoading.show();
+      var promise = $http({
+        method: 'POST',
+        url: '/NFCLock.BaseNFCLock/postionRecordList_RawJson.ajax',
+        data: {postionname: $scope.dzsPosition.nfclock_objectpostionname, recordid: DzsRecords.getRecord().recordid}
+      });
+
+      promise.then(function (resp) {
+        if (resp.headers("sessionStatus") == "clear") {
+          Account.setLoginAgain(true);
+          $location.path('/tab/loginAgain');
+          return;
+        }
+
+        var rows = resp.data.rows;
+        var stepInfos = [];
+
+        for (var i = 0; i < rows.length; i++) {
+          var object = rows[i];
+          var stepInfo = {};
+
+          stepInfo.id = i;
+          stepInfo.show = i == 0;
+          stepInfo.title = object.stepname;
+          stepInfo.time = DzsRecords.formatDate(object.createtime);
+
+          var items = [];
+          var fieldjson = JSON.parse(object.spfieldjson);
+          for (var j = 0; j < fieldjson.length; j++) {
+            var field = fieldjson[j];
+            var item = {};
+            item.name = field.showname;
+            if (field.datatype == "string") {
+              item.value = field.fieldValue;
+            } else {
+              item.image = field.fieldValue;
+            }
+            items.push(item);
+          }
+
+          if (object.pic != "") {
+            var item = {};
+            item.name = object.stepname + "图片";
+            item.image = object.pic;
+            items.push(item);
+          }
+
+          stepInfo.items = items;
+          stepInfos.push(stepInfo);
+        }
+
+        var postionInfo = resp.data.postionInfo;
+        if (postionInfo.errorpic != null) {
+          var stepInfo = {};
+          stepInfo.show = false;
+          stepInfo.title = "异常";
+          stepInfo.time = DzsRecords.formatDate(object.createtime);
+          var items = [];
+          var item1 = {};
+          item1.name = "异常信息";
+          item1.value = postionInfo.errormsg;
+          items.push(item1);
+          var item2 = {};
+          item2.name = "异常图片";
+          item2.image = postionInfo.errorpic;
+          items.push(item2);
+
+          stepInfo.items = items;
+          stepInfos.push(stepInfo);
+        }
+
+        $scope.groups = stepInfos;
+      }, function (resp) {
+
+      }).finally(function () {
+        $ionicLoading.hide();
+      })
+    });
+
+    $scope.viewStepPicture = function (item) {
+      Picture.setPicture(item.image, null, item.name);
+      $location.path('/tab/pictureView');
+    };
+
+    $scope.displayShow = function (index) {
+      for (var i = 0; i < $scope.steps.length; i++) {
+        if (i == index) {
+          if ($scope.steps[i].show) {
+            $scope.steps[i].show = null;
+          } else {
+            $scope.steps[i].show = "show";
+          }
+        } else {
+          $scope.steps[i].show = null;
+        }
+      }
+    };
   })
 
   .controller('SelectCtrl', function ($scope, $location, $http, $filter, $ionicLoading, ionicDatePicker, SelectCompanys) {

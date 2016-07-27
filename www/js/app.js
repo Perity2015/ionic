@@ -171,8 +171,18 @@ angular.module('starter', ['ionic', 'ionic-datepicker', 'ionic-toast','starter.c
         url: '/records/dzs/detail/position',
         views: {
           'tab-records': {
-            templateUrl: 'templates/wl-record-detail-position.html',
-            controller: 'WlRecordPositionCtrl'
+            templateUrl: 'templates/dzs-record-detail-position.html',
+            controller: 'DzsRecordPositionCtrl'
+          }
+        }
+      })
+
+      .state('tab.records-dzs-detail-map', {
+        url: '/records/dzs/detail/map',
+        views: {
+          'tab-records': {
+            templateUrl: 'templates/dzs-record-detail-map.html',
+            controller: 'DzsRecordMapCtrl'
           }
         }
       })
